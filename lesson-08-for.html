@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Цикл for — урок 8</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 8 · ЦИКЛ FOR · перебираем по одному
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(91,75,196,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(58,125,44,.12), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(12,124,134,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .indent{
+  background:rgba(91,75,196,.22);
+  border-radius:4px;padding:0 2px;
+  color:#C9B8FF;
+}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table td:first-child code{
+  background:var(--bg);padding:2px 8px;border-radius:6px;
+}
+.print-table td:last-child{
+  font-family:var(--font-code);font-weight:700;color:var(--a3);
+}
+.print-table tr:last-child td{border-bottom:none}
+
+.string-iter{
+  display:flex;justify-content:center;gap:0;margin:22px 0;
+  flex-wrap:wrap;
+}
+.string-iter .cell{
+  min-width:48px;height:60px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card);border:2px solid var(--line);
+  border-right:none;
+  font:800 24px var(--font-code);
+  color:var(--text);
+  transition:.3s ease;
+}
+.string-iter .cell:first-child{border-radius:12px 0 0 12px}
+.string-iter .cell:last-child{border-radius:0 12px 12px 0;border-right:2px solid var(--line)}
+.string-iter .cell.picking{
+  background:linear-gradient(180deg,#C9B8FF,#A99BFF);
+  color:#3A2A7D;transform:scale(1.12);z-index:1;
+  box-shadow:0 8px 20px rgba(91,75,196,.3);
+  border-color:#5B4BC4;
+}
+.string-iter .cell.picking + .cell{border-left-color:#5B4BC4}
+
+.loop-steps{
+  display:flex;flex-direction:column;gap:8px;
+  background:var(--bg);border-radius:18px;padding:20px;
+  margin:22px 0;
+}
+.loop-step{
+  display:grid;grid-template-columns:60px 1fr;
+  gap:14px;align-items:center;
+  padding:12px 16px;background:var(--card);
+  border-radius:12px;
+  border-left:5px solid var(--a3);
+  transition:.25s ease;
+  opacity:.6;
+}
+.loop-step.active{
+  border-left-color:var(--a1);
+  box-shadow:0 8px 20px rgba(12,124,134,.15);
+  opacity:1;
+  transform:translateX(6px);
+}
+.loop-step .num{
+  font:800 16px var(--font-code);
+  color:var(--a3);text-align:center;
+}
+.loop-step.active .num{color:var(--a1)}
+.loop-step .txt{
+  font:700 15px var(--font-code);
+  color:var(--text);
+  line-height:1.5;
+}
+.loop-step .txt .hl{color:var(--a1);font-weight:800}
+
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13.5px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#C9B8FF,#B5E7A0 50%,#FFD98E);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎉";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#3A2A7D}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#3A2A7D;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#5B4BC4,#B8325A);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(91,75,196,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#0C7C86,#3A7D2C)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .string-iter .cell{min-width:36px;height:50px;font-size:18px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>💌</span>
+    <span>🔁</span>
+    <span>🤖</span>
+  </div>
+  <h1>Каждому — по строчке</h1>
+  <p class="lead">
+    Байт делает рассылку в соцсети «Друзья Рядом». У него есть
+    список друзей, и каждому нужно отправить персональное сообщение.
+    Писать десять одинаковых команд — скучно. Сегодня узнаем,
+    как это делать одной командой — с помощью цикла <b>for</b>.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>💌 Рассылка</span>
+    <span>🔁 Цикл for</span>
+    <span>🎯 Простые примеры</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💌</span>
+      <span>🔤</span>
+      <span>🔁</span>
+      <span>🎯</span>
+      <span>📋</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================ -->
+<!-- ПЛАН -->
+<!-- ============================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–6 мин</span>
+    <span class="icon">💌</span>
+    <div class="ttl">Задача — рассылка</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">6–14 мин</span>
+    <span class="icon">🔤</span>
+    <div class="ttl">Перебор по буквам</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">14–22 мин</span>
+    <span class="icon">🔁</span>
+    <div class="ttl">Цикл for in</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">22–32 мин</span>
+    <span class="icon">🎯</span>
+    <div class="ttl">Примеры и практика</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">32–40 мин</span>
+    <span class="icon">📋</span>
+    <div class="ttl">Проверка логина</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">40–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и квиз</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ШАГ 1 · ЗАДАЧА — РАССЫЛКА -->
+<!-- ============================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–6 минут · 💌 Задача — рассылка</span>
+  <h2>Байт получил список друзей</h2>
+  <p class="sub">
+    Соцсеть «Друзья Рядом» попросила Байта сделать приветственную
+    рассылку. У Байта есть список друзей, и каждому нужно
+    отправить личное сообщение.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Вот, смотри, список моих друзей: <b>Аня</b>, <b>Боря</b>,
+      <b>Вика</b>, <b>Гена</b>. Каждому нужно написать
+      «<b>Привет, имя!</b>». Как это сделать?
+    </div>
+  </div>
+
+  <p>
+    Можно написать четыре команды <code>print()</code> вручную.
+    Пока друзей мало — сойдёт. А если их сто?
+  </p>
+
+  <div class="code-full"><span class="fn">print</span>(<span class="str">'Привет, Аня!'</span>)
+<span class="fn">print</span>(<span class="str">'Привет, Боря!'</span>)
+<span class="fn">print</span>(<span class="str">'Привет, Вика!'</span>)
+<span class="fn">print</span>(<span class="str">'Привет, Гена!'</span>)</div>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Так не годится. Мне нужна такая команда, которая
+      <b>сама пройдёт по всем друзьям</b> и каждому напишет
+      сообщение. Одинаковый код — а работает с разными данными.
+    </div>
+  </div>
+
+  <p>
+    Такая команда есть — это <b>цикл for</b>. И сегодня мы его
+    освоим.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">💭 Знакомо?</div>
+    <p>
+      На прошлом уроке мы изучили цикл <code>while</code>. Он
+      повторяет действия, <b>пока условие истинно</b>.
+    </p>
+    <p>
+      Цикл <code>for</code> работает по-другому: он <b>перебирает
+      элементы последовательности</b> один за другим. Где начало,
+      где конец, в каком порядке — всё знает сам. Нам не нужен счётчик.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 2 · ПЕРЕБОР ПО БУКВАМ -->
+<!-- ============================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 6–14 минут · 🔤 Перебор по буквам</span>
+  <h2>Разбираем слово на буквы</h2>
+  <p class="sub">
+    Прежде чем перебирать друзей, разберёмся с простым примером —
+    переберём слово по буквам.
+  </p>
+
+  <p>Возьмём слово <b>kitty</b>:</p>
+
+  <div class="string-iter">
+    <div class="cell">k</div>
+    <div class="cell">i</div>
+    <div class="cell">t</div>
+    <div class="cell">t</div>
+    <div class="cell">y</div>
+  </div>
+
+  <p>
+    Программа может пройти по этой строке слева направо и на каждом
+    шаге взять одну букву. Как будто перебирает бусины на нитке.
+  </p>
+
+  <p>Вот как это записать в коде:</p>
+
+  <div class="code-full">password = <span class="str">'kitty'</span>
+
+<span class="kw">for</span> symbol <span class="kw">in</span> password:
+    <span class="fn">print</span>(symbol)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="ok">k
+i
+t
+t
+y</span></pre>
+  </div>
+
+  <h3>Как это читается</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>for</b> — «для».
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>symbol</b> — имя переменной. Мы придумали его сами.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      <b>in</b> — «в». Указываем последовательность.
+    </div>
+    <div class="rule">
+      <span class="n">4</span>
+      <b>password</b> — сама последовательность. Здесь это строка.
+    </div>
+  </div>
+
+  <p>Полное предложение звучит так:</p>
+
+  <div class="explain memo">
+    <div class="ttl">📖 Читаем вслух</div>
+    <p style="font-size:19px;font-family:var(--font-code);color:var(--a3);text-align:center">
+      «<b>Для</b> каждого <b>symbol</b> <b>в</b> password — напечатай symbol».
+    </p>
+    <p>
+      На каждом шаге в переменную <code>symbol</code> попадает
+      очередная буква. И тело цикла с ней работает.
+    </p>
+  </div>
+
+  <h3>Смотрим на шаги цикла</h3>
+
+  <p>
+    Нажми «Показать», чтобы увидеть, как меняется переменная
+    <code>symbol</code> на каждом шаге:
+  </p>
+
+  <div class="loop-steps" id="loopSteps">
+    <div class="loop-step">
+      <div class="num">шаг 1</div>
+      <div class="txt">symbol = <span class="hl">'k'</span> → печатаем k</div>
+    </div>
+    <div class="loop-step">
+      <div class="num">шаг 2</div>
+      <div class="txt">symbol = <span class="hl">'i'</span> → печатаем i</div>
+    </div>
+    <div class="loop-step">
+      <div class="num">шаг 3</div>
+      <div class="txt">symbol = <span class="hl">'t'</span> → печатаем t</div>
+    </div>
+    <div class="loop-step">
+      <div class="num">шаг 4</div>
+      <div class="txt">symbol = <span class="hl">'t'</span> → печатаем t</div>
+    </div>
+    <div class="loop-step">
+      <div class="num">шаг 5</div>
+      <div class="txt">symbol = <span class="hl">'y'</span> → печатаем y</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
+    <button type="button" id="playLoopBtn" style="padding:12px 22px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;font:800 15px var(--font-ui);cursor:pointer;box-shadow:0 8px 18px rgba(91,75,196,.3)">
+      ▶ Показать шаги
+    </button>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Главное</div>
+    <p>
+      Python сам знает, <b>сколько букв</b> в строке и <b>в каком
+      порядке</b> их перебирать. Счётчик нам не нужен.
+    </p>
+  </div>
+
+  <!-- Интерактив: сколько шагов -->
+  <div class="scene">
+    <h4>Сколько шагов сделает цикл?</h4>
+    <p class="hint">
+      Посмотри на код и напиши, сколько раз сработает тело цикла.
+    </p>
+
+    <div id="g1task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 15px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g1code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="number" id="g1answer" placeholder="Сколько?" style="text-align:center">
+      <button type="button" id="g1btn">Проверить</button>
+    </div>
+    <div id="g1msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g1score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 3 · СИНТАКСИС -->
+<!-- ============================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 14–22 минут · 🔁 Синтаксис</span>
+  <h2>Синтаксис цикла for</h2>
+  <p class="sub">
+    Разберёмся, как записывается цикл for и как его оформлять.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Цикл for</div>
+    <div class="def">
+      Это цикл, который <b>перебирает элементы последовательности</b>
+      один за другим. Последовательность — это строка, список
+      или другой упорядоченный набор.
+    </div>
+    <div class="ex">
+      <code>for symbol in password:</code> — перебрать все символы пароля.
+    </div>
+  </div>
+
+  <h3>Общая схема</h3>
+
+  <div class="code-full"><span class="kw">for</span> элемент <span class="kw">in</span> последовательность:
+    <span class="indent">    </span>действие_1
+    <span class="indent">    </span>действие_2
+
+действие_3  <span class="cm"># это уже вне цикла</span></div>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      Служебное слово <b>for</b>.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      Имя переменной — придумываем сами.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      Служебное слово <b>in</b> и последовательность.
+    </div>
+    <div class="rule">
+      <span class="n">4</span>
+      Двоеточие и тело цикла с отступом 4 пробела.
+    </div>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Те же правила, что и раньше</div>
+    <p>
+      <b>1.</b> После условия — <b>двоеточие</b>.<br>
+      <b>2.</b> Тело цикла — с <b>отступом в 4 пробела</b>.<br>
+      <b>3.</b> Команда <b>без отступа</b> — уже вне цикла.
+    </p>
+  </div>
+
+  <h3>Первое практическое применение</h3>
+
+  <p>
+    Давай выведем каждую букву слова на новой строке — но сначала
+    спросим само слово.
+  </p>
+
+  <div class="code-full">word = <span class="fn">input</span>(<span class="str">'Введите слово: '</span>)
+
+<span class="kw">for</span> symbol <span class="kw">in</span> word:
+    <span class="fn">print</span>(symbol)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите слово: </span><span class="hl">мама</span>
+<span class="ok">м
+а
+м
+а</span></pre>
+  </div>
+
+  <h3>Как назвать переменную цикла</h3>
+
+  <p>
+    Имя переменной — наша фантазия. Обычно берут <b>осмысленное</b>:
+    оно помогает понять, что в переменной лежит.
+  </p>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Что перебираем</th><th>Хорошее имя</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Символы строки</td><td><code>symbol</code>, <code>letter</code>, <code>ch</code></td></tr>
+      <tr><td>Имена друзей</td><td><code>friend</code>, <code>name</code></td></tr>
+      <tr><td>Запрещённые символы</td><td><code>bad</code>, <code>wrong</code></td></tr>
+      <tr><td>Что-то универсальное</td><td><code>item</code>, <code>element</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Интерактив: собери цикл -->
+  <div class="scene">
+    <h4>Собери цикл</h4>
+    <p class="hint">
+      Расставь кусочки так, чтобы программа вывела каждую букву
+      слова «кот» на новой строке.
+    </p>
+
+    <div style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:700 15px var(--font-ui);color:var(--muted);margin-bottom:12px">Твой код:</div>
+      <div style="font:800 15px var(--font-code);color:var(--a3);min-height:36px;text-align:left;white-space:pre-wrap;line-height:1.7" id="g2result">?</div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center" id="g2pool">
+      <button class="kid-chip" data-chip="for letter in 'кот':" type="button">for letter in 'кот':</button>
+      <button class="kid-chip" data-chip="print(letter)" type="button">print(letter)</button>
+      <button class="kid-chip" data-chip="print('кот')" type="button">print('кот')</button>
+      <button class="kid-chip" data-chip="if letter:" type="button">if letter:</button>
+      <button class="kid-chip" data-chip="input()" type="button">input()</button>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:18px">
+      <button type="button" id="g2clear" style="padding:10px 20px;border:2px solid var(--line);background:var(--card);border-radius:10px;cursor:pointer;font:600 14px var(--font-ui);color:var(--text)">Сбросить</button>
+      <button type="button" id="g2check" style="padding:10px 24px;border:none;background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;border-radius:10px;cursor:pointer;font:800 14px var(--font-ui);box-shadow:0 6px 16px rgba(91,75,196,.3)">Проверить</button>
+    </div>
+    <div id="g2msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+
+    <style>
+      .kid-chip{
+        padding:12px 18px;font:800 15px var(--font-code);
+        background:var(--card);border:3px solid var(--line);
+        border-radius:12px;color:var(--text);cursor:pointer;
+        transition:.15s ease;
+      }
+      .kid-chip:hover{border-color:var(--a3);transform:translateY(-2px)}
+      .kid-chip.used{opacity:.3;pointer-events:none}
+    </style>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 4 · ПРИМЕРЫ И ПРАКТИКА -->
+<!-- ============================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 22–32 минут · 🎯 Примеры</span>
+  <h2>Разбираем примеры</h2>
+  <p class="sub">
+    Цикл for умеет не только печатать. Внутри цикла можно считать,
+    искать и делать что угодно. Разберём три примера.
+  </p>
+
+  <h3>Пример 1. Считаем гласные</h3>
+
+  <p>
+    Программа перебирает буквы слова и считает, сколько среди них
+    гласных. Гласные — «а», «е», «и», «о», «у», «ы», «э», «ю», «я».
+  </p>
+
+  <div class="code-full">word = <span class="fn">input</span>(<span class="str">'Введите слово: '</span>)
+vowels = <span class="str">'аеиоуыэюя'</span>
+count = <span class="num">0</span>
+
+<span class="kw">for</span> letter <span class="kw">in</span> word:
+    <span class="kw">if</span> letter <span class="kw">in</span> vowels:
+        count += <span class="num">1</span>
+
+<span class="fn">print</span>(<span class="str">'Гласных:'</span>, count)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите слово: </span><span class="hl">мама</span>
+Гласных: <span class="ok">2</span>
+
+<span class="dim">Введите слово: </span><span class="hl">программирование</span>
+Гласных: <span class="ok">7</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор</div>
+    <p>
+      <b>1.</b> <code>vowels</code> — строка всех гласных букв.<br>
+      <b>2.</b> <code>count = 0</code> — счётчик до цикла.<br>
+      <b>3.</b> Внутри цикла проверяем: буква входит в гласные?
+      Если да — увеличиваем счётчик на 1.<br>
+      <b>4.</b> После цикла печатаем результат.
+    </p>
+  </div>
+
+  <h3>Пример 2. Ищем запрещённые символы в логине</h3>
+
+  <p>
+    Это задача, которую поручила соцсеть. В логине можно
+    использовать только буквы и цифры. Вот эти символы запрещены:
+    <code>= ? * ^ $ № @ _ , ; : # % &amp;</code>
+  </p>
+
+  <div class="code-full">login = <span class="fn">input</span>(<span class="str">'Введите логин: '</span>)
+wrong = <span class="str">'=?*^$№@_,;:#%&'</span>
+
+<span class="kw">for</span> symbol <span class="kw">in</span> login:
+    <span class="kw">if</span> symbol <span class="kw">in</span> wrong:
+        <span class="fn">print</span>(<span class="str">'Запрещённый символ:'</span>, symbol)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите логин: </span><span class="hl">ps_smirnova</span>
+Запрещённый символ: <span class="err">_</span>
+
+<span class="dim">Введите логин: </span><span class="hl">p@vel_ivanov</span>
+Запрещённый символ: <span class="err">@</span>
+Запрещённый символ: <span class="err">_</span>
+
+<span class="dim">Введите логин: </span><span class="hl">anya2008</span>
+(ничего не выведет — все символы разрешены)</pre>
+  </div>
+
+  <h3>Пример 3. Считаем цифры в строке</h3>
+
+  <p>
+    Ещё один полезный пример. Программа считает, сколько в
+    строке цифр — а сколько букв.
+  </p>
+
+  <div class="code-full">text = <span class="fn">input</span>(<span class="str">'Введите текст: '</span>)
+digits = <span class="str">'0123456789'</span>
+count = <span class="num">0</span>
+
+<span class="kw">for</span> symbol <span class="kw">in</span> text:
+    <span class="kw">if</span> symbol <span class="kw">in</span> digits:
+        count += <span class="num">1</span>
+
+<span class="fn">print</span>(<span class="str">'Цифр в тексте:'</span>, count)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите текст: </span><span class="hl">у меня 3 кота и 2 собаки</span>
+Цифр в тексте: <span class="ok">2</span></pre>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Прочитай код и напиши, что выведет программа.
+    </p>
+
+    <div id="g4task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g4code"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font:700 13.5px var(--font-code);color:var(--muted)" id="g4input"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g4answer" placeholder="Что напечатает?" style="text-align:center">
+      <button type="button" id="g4btn">Проверить</button>
+    </div>
+    <div id="g4msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g4score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 5 · ПРОВЕРКА ЛОГИНА -->
+<!-- ============================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 32–40 минут · 📋 Проверка логина</span>
+  <h2>Решаем задачу соцсети полностью</h2>
+  <p class="sub">
+    Дополним проверку логина: если запрещённых символов нет —
+    программа сообщает, что логин подходит.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Получается, цикл перебирает все символы, но как узнать,
+      нашли мы что-то запрещённое или нет? Можно использовать
+      переменную-флаг. Она как «лампочка»: горит — значит
+      нашли проблему.
+    </div>
+  </div>
+
+  <div class="def-card">
+    <div class="term">Переменная-флаг</div>
+    <div class="def">
+      Переменная, которая хранит <b>True</b> или <b>False</b> и
+      показывает, случилось что-то важное или нет. Обычно
+      заводят её <b>до</b> цикла.
+    </div>
+    <div class="ex">
+      <code>ok = True</code> — значит «всё хорошо». Если найдём
+      проблему — поставим <code>ok = False</code>.
+    </div>
+  </div>
+
+  <div class="code-full">login = <span class="fn">input</span>(<span class="str">'Введите логин: '</span>)
+wrong = <span class="str">'=?*^$№@_,;:#%&'</span>
+ok = <span class="kw">True</span>
+
+<span class="kw">for</span> symbol <span class="kw">in</span> login:
+    <span class="kw">if</span> symbol <span class="kw">in</span> wrong:
+        <span class="fn">print</span>(<span class="str">'Запрещённый символ:'</span>, symbol)
+        ok = <span class="kw">False</span>
+
+<span class="kw">if</span> ok:
+    <span class="fn">print</span>(<span class="str">'Логин подходит!'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Логин содержит запрещённые символы.'</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите логин: </span><span class="hl">anya2008</span>
+<span class="ok">Логин подходит!</span>
+
+<span class="dim">Введите логин: </span><span class="hl">p@vel_ivanov</span>
+Запрещённый символ: <span class="err">@</span>
+Запрещённый символ: <span class="err">_</span>
+Логин содержит запрещённые символы.</pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор</div>
+    <p>
+      <b>1.</b> Заводим флаг <code>ok = True</code> перед циклом —
+      «пока всё хорошо».<br>
+      <b>2.</b> Внутри цикла, если находим плохой символ —
+      меняем флаг на <code>False</code>.<br>
+      <b>3.</b> После цикла смотрим: если флаг всё ещё True — логин
+      подходит. Иначе — нет.
+    </p>
+    <p>
+      Флаг удобен, когда нужно запомнить, произошло ли что-то
+      важное во время цикла.
+    </p>
+  </div>
+
+  <h3>Задача: письмо друзьям</h3>
+
+  <p>
+    А теперь вернёмся к первоначальной задаче. Список друзей —
+    это строка. Каждое имя мы будем перебирать в цикле.
+    Правда, имена разделены пробелом, так что для простоты
+    сделаем список друзей одной строкой с пробелами.
+  </p>
+
+  <div class="code-full">friends = <span class="str">'Аня Боря Вика Гена'</span>
+
+<span class="kw">for</span> friend <span class="kw">in</span> friends:
+    <span class="fn">print</span>(<span class="str">'Привет,'</span>, friend + <span class="str">'!'</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body">Привет, <span class="ok">А</span>!
+Привет, <span class="ok">н</span>!
+Привет, <span class="ok">я</span>!
+Привет, <span class="ok"> </span>!
+Привет, <span class="ok">Б</span>!
+…</pre>
+  </div>
+
+  <div class="explain danger">
+    <div class="ttl">🚨 Почему получились буквы?</div>
+    <p>
+      Цикл <code>for</code> перебирает <b>символы</b> строки. А имена
+      друзей — это слова, которые разделены пробелами. Пока мы
+      работаем со строкой, цикл видит только отдельные буквы.
+    </p>
+    <p>
+      Чтобы перебирать <b>слова</b>, а не буквы, нужно превратить
+      строку в список слов. Об этом — на следующем уроке, когда
+      будем работать со <b>списками</b>.
+    </p>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">💡 Что запомнить</div>
+    <p>
+      Цикл <code>for</code> перебирает элементы той последовательности,
+      которую мы указали. Если указали строку — перебирает буквы.
+      Список слов перебирает слова — но списки мы ещё не проходили.
+    </p>
+  </div>
+
+  <!-- Интерактив: что напечатает -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Прочитай код и напиши, что выведет программа.
+    </p>
+
+    <div id="g5task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g5code"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font:700 13.5px var(--font-code);color:var(--muted)" id="g5input"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g5answer" placeholder="Что напечатает?" style="text-align:center">
+      <button type="button" id="g5btn">Проверить</button>
+    </div>
+    <div id="g5msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g5score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 40–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Что перебирает цикл for?</div>
+      <div class="opts">
+        <button type="button" class="opt">Числа от 1 до n</button>
+        <button type="button" class="opt" data-correct="true">Элементы последовательности</button>
+        <button type="button" class="opt">Только слова</button>
+        <button type="button" class="opt">Условие</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Как читается строка <code>for letter in word:</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Если letter в word</button>
+        <button type="button" class="opt" data-correct="true">Для каждого letter в word</button>
+        <button type="button" class="opt">Сравнить letter и word</button>
+        <button type="button" class="opt">Создать word из letter</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Сколько раз сработает тело цикла?</div>
+      <pre>for ch in 'cat':
+    print(ch)</pre>
+      <div class="opts">
+        <button type="button" class="opt">2</button>
+        <button type="button" class="opt" data-correct="true">3</button>
+        <button type="button" class="opt">4</button>
+        <button type="button" class="opt">Бесконечно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Что напечатает программа?</div>
+      <pre>for ch in 'мир':
+    print(ch)</pre>
+      <div class="opts">
+        <button type="button" class="opt">мир</button>
+        <button type="button" class="opt" data-correct="true">м, и, р — каждое с новой строки</button>
+        <button type="button" class="opt">м и р — через пробел</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Сколько раз сработает тело цикла?</div>
+      <pre>for ch in 'кот':
+    print(ch)</pre>
+      <div class="opts">
+        <button type="button" class="opt">1</button>
+        <button type="button" class="opt">2</button>
+        <button type="button" class="opt" data-correct="true">3</button>
+        <button type="button" class="opt">4</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Что нужно поставить после строки <code>for x in word</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Точку с запятой</button>
+        <button type="button" class="opt" data-correct="true">Двоеточие</button>
+        <button type="button" class="opt">Запятую</button>
+        <button type="button" class="opt">Ничего</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Что не так с этим кодом?</div>
+      <pre>for ch in 'ok':
+print(ch)</pre>
+      <div class="opts">
+        <button type="button" class="opt">Нет двоеточия</button>
+        <button type="button" class="opt" data-correct="true">Нет отступа у print</button>
+        <button type="button" class="opt">Лишний for</button>
+        <button type="button" class="opt">Всё правильно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Что цикл <code>for</code> перебирает элементы
+      последовательности.<br>
+      <b>2.</b> Что внутри цикла переменная на каждом шаге
+      получает новый элемент.<br>
+      <b>3.</b> Как перебирать символы строки.<br>
+      <b>4.</b> Как считать что-то внутри цикла (счётчик).<br>
+      <b>5.</b> Как использовать оператор <code>in</code> для
+      проверки.<br>
+      <b>6.</b> Что такое переменная-флаг.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на цикл <code>for</code> и перебор строк.
+    Нажми «Открыть в Playground» — стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Как работать.</b> Открой задачу, напиши код, нажми
+    <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. Не забудь про двоеточие
+    и отступ в 4 пробела.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Буквы слова</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси слово и выведи каждую букву с новой строки.
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>for letter in word:</code> — и внутри печатай letter.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>word = input("Введите слово: ")
+for letter in word:
+    print(letter)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Сколько букв?</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси слово и посчитай, сколько в нём символов, используя
+        цикл (без <code>len()</code>).
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Заведи <code>count = 0</code>. Внутри цикла
+        <code>count += 1</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>word = input("Введите слово: ")
+count = 0
+for letter in word:
+    count += 1
+print("Символов:", count)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Гласные буквы</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси слово и посчитай в нём количество гласных.
+        Гласные: <code>аеиоуыэюя</code>
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Проверка: <code>if letter in vowels:</code>. Счётчик
+        увеличиваем только в этом случае.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>word = input("Введите слово: ")
+vowels = "аеиоуыэюя"
+count = 0
+for letter in word:
+    if letter in vowels:
+        count += 1
+print("Гласных:", count)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Запрещённые символы</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси логин и выведи все запрещённые символы.
+        Запрещены: <code>=?*^$№@_,;:#%&</code>
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Строку запретов сохрани в переменную. Внутри цикла
+        проверяй <code>if symbol in wrong:</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>login = input("Логин: ")
+wrong = "=?*^$№@_,;:#%&"
+for symbol in login:
+    if symbol in wrong:
+        print("Запрещённый символ:", symbol)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Считаем цифры</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси текст и посчитай, сколько в нём цифр.
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Строка всех цифр: <code>"0123456789"</code>. Проверяй
+        каждую букву через <code>in</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>text = input("Текст: ")
+digits = "0123456789"
+count = 0
+for symbol in text:
+    if symbol in digits:
+        count += 1
+print("Цифр:", count)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Проверка логина целиком</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси логин. Если в нём нет запрещённых символов —
+        выведи «Логин подходит!», иначе — «Есть запрещённые символы».
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Используй флаг <code>ok = True</code>. Если находишь
+        плохой символ — поставь <code>ok = False</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>login = input("Логин: ")
+wrong = "=?*^$№@_,;:#%&"
+ok = True
+for symbol in login:
+    if symbol in wrong:
+        print("Запрещённый символ:", symbol)
+        ok = False
+if ok:
+    print("Логин подходит!")
+else:
+    print("Есть запрещённые символы.")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Задом наперёд</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси слово и собери его обратную версию через цикл:
+        перебирай буквы и добавляй их в начало новой строки.
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Заведи <code>result = ""</code>. Внутри цикла
+        <code>result = letter + result</code> — так каждая новая
+        буква встаёт в начало.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>word = input("Слово: ")
+result = ""
+for letter in word:
+    result = letter + result
+print("Задом наперёд:", result)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Программа должна вывести все буквы слова, но не работает.
+        Найди ошибки.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Проверь: есть ли двоеточие после <code>in word</code>?
+        Есть ли отступ у <code>print</code>?</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>word = "мама"
+for letter in word:
+    print(letter)</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Каждую букву слова — с новой строки
+word = input("Введите слово: ")
+
+</template>
+  <template data-task="2"># Посчитай символы без len()
+word = input("Введите слово: ")
+count = 0
+
+</template>
+  <template data-task="3"># Посчитай гласные
+word = input("Введите слово: ")
+vowels = "аеиоуыэюя"
+count = 0
+
+</template>
+  <template data-task="4"># Найди запрещённые символы в логине
+login = input("Логин: ")
+wrong = "=?*^$№@_,;:#%&"
+
+</template>
+  <template data-task="5"># Посчитай цифры в тексте
+text = input("Текст: ")
+digits = "0123456789"
+count = 0
+
+</template>
+  <template data-task="6"># Проверка логина целиком через флаг
+login = input("Логин: ")
+wrong = "=?*^$№@_,;:#%&"
+ok = True
+
+</template>
+  <template data-task="7"># Переверни слово через цикл
+word = input("Слово: ")
+result = ""
+
+</template>
+  <template data-task="8"># Найди и исправь ошибки
+word = "мама"
+for letter in word
+print(letter)
+</template>
+</div>
+
+<!-- ============================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🎉</span>
+  <h2>Цикл for освоен!</h2>
+  <p>
+    Ты научил Байта перебирать элементы последовательности
+    через цикл <code>for</code>. Теперь программа может пройти
+    по всем буквам слова, найти запрещённые символы и посчитать
+    нужное. На следующем уроке — <b>range()</b>: научимся
+    повторять действия ровно N раз.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-09-range.html">
+      Следующий урок: range() →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 8 · Цикл for · 💌 «Друзья Рядом» · перебор строк
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   АНИМАЦИЯ ШАГОВ ЦИКЛА
+   ============================================================ */
+(function(){
+  var steps = document.querySelectorAll('#loopSteps .loop-step');
+  if (!steps.length) return;
+  var btn = document.getElementById('playLoopBtn');
+  var playing = false;
+  var timer = null;
+
+  function stop(){
+    if (timer) clearTimeout(timer);
+    steps.forEach(function(s){ s.classList.remove('active'); });
+    playing = false;
+    btn.textContent = '▶ Показать шаги';
+  }
+
+  function step(i){
+    if (i >= steps.length){
+      setTimeout(function(){
+        stop();
+        btn.textContent = '↻ Ещё раз';
+      }, 1200);
+      return;
+    }
+    steps.forEach(function(s){ s.classList.remove('active'); });
+    steps[i].classList.add('active');
+    timer = setTimeout(function(){ step(i + 1); }, 700);
+  }
+
+  btn.addEventListener('click', function(){
+    if (playing) return;
+    playing = true;
+    btn.textContent = '⏸ Идёт показ…';
+    step(0);
+  });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: сколько шагов цикла
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g1code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g1answer');
+  var btn = document.getElementById('g1btn');
+  var msg = document.getElementById('g1msg');
+  var scoreEl = document.getElementById('g1score');
+
+  var tasks = [
+    { code: "for ch in 'cat':\n    print(ch)", answer: 3 },
+    { code: "for ch in 'hello':\n    print(ch)", answer: 5 },
+    { code: "for ch in 'мир':\n    print(ch)", answer: 3 },
+    { code: "for ch in 'П':\n    print(ch)", answer: 1 },
+    { code: "for ch in '12345':\n    print(ch)", answer: 5 }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = parseInt(ansEl.value, 10);
+    answered++;
+    if (user === tasks[i].answer){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 900);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: собери цикл
+   ============================================================ */
+(function(){
+  var pool = document.getElementById('g2pool');
+  if (!pool) return;
+  var result = document.getElementById('g2result');
+  var msg = document.getElementById('g2msg');
+  var clearBtn = document.getElementById('g2clear');
+  var checkBtn = document.getElementById('g2check');
+
+  var picked = [];
+
+  function render(){
+    result.textContent = picked.length ? picked.join('\n') : '?';
+  }
+
+  pool.querySelectorAll('.kid-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      picked.push(chip.dataset.chip);
+      chip.classList.add('used');
+      render();
+    });
+  });
+
+  clearBtn.addEventListener('click', function(){
+    picked = [];
+    pool.querySelectorAll('.kid-chip').forEach(function(c){ c.classList.remove('used'); });
+    msg.textContent = '';
+    render();
+  });
+
+  checkBtn.addEventListener('click', function(){
+    var answer = picked.join('|').replace(/\s+/g, ' ').trim();
+    var correct = "for letter in 'кот':|print(letter)";
+    if (answer === correct){
+      msg.textContent = '🎉 Верно! Цикл переберёт буквы «к», «о», «т» и напечатает каждую.';
+      msg.style.color = 'var(--a5)';
+    } else if (picked.length === 0){
+      msg.textContent = 'Сначала собери код из кусочков ↑';
+      msg.style.color = 'var(--a3)';
+    } else {
+      msg.textContent = '🤔 Не то. Нужно только 2 кусочка: строка с for и print внутри.';
+      msg.style.color = 'var(--red)';
+    }
+  });
+
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: что напечатает (примеры)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g4code');
+  if (!codeEl) return;
+  var inputEl = document.getElementById('g4input');
+  var ansEl = document.getElementById('g4answer');
+  var btn = document.getElementById('g4btn');
+  var msg = document.getElementById('g4msg');
+  var scoreEl = document.getElementById('g4score');
+
+  var tasks = [
+    {
+      code: "word = 'мама'\nvowels = 'аеиоуыэюя'\ncount = 0\nfor letter in word:\n    if letter in vowels:\n        count += 1\nprint(count)",
+      input: '',
+      answer: '2'
+    },
+    {
+      code: "text = 'у меня 3 кота'\ndigits = '0123456789'\ncount = 0\nfor s in text:\n    if s in digits:\n        count += 1\nprint(count)",
+      input: '',
+      answer: '1'
+    },
+    {
+      code: "login = 'anya'\nwrong = '@_'\nok = True\nfor s in login:\n    if s in wrong:\n        ok = False\nprint(ok)",
+      input: '',
+      answer: 'True'
+    },
+    {
+      code: "login = 'p@vel'\nwrong = '@_'\nok = True\nfor s in login:\n    if s in wrong:\n        ok = False\nprint(ok)",
+      input: '',
+      answer: 'False'
+    },
+    {
+      code: "s = ''\nfor letter in 'abc':\n    s = letter + s\nprint(s)",
+      input: '',
+      answer: 'cba'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      inputEl.textContent = '';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    inputEl.textContent = tasks[i].input;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = ansEl.value.trim();
+    var correct = tasks[i].answer;
+    answered++;
+    if (user.toLowerCase() === correct.toLowerCase()){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + correct;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 4: что напечатает (флаг)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g5code');
+  if (!codeEl) return;
+  var inputEl = document.getElementById('g5input');
+  var ansEl = document.getElementById('g5answer');
+  var btn = document.getElementById('g5btn');
+  var msg = document.getElementById('g5msg');
+  var scoreEl = document.getElementById('g5score');
+
+  var tasks = [
+    {
+      code: "login = 'anya'\nwrong = '@_'\nok = True\nfor s in login:\n    if s in wrong:\n        ok = False\nif ok:\n    print('Ок')\nelse:\n    print('Нет')",
+      input: '',
+      answer: 'Ок'
+    },
+    {
+      code: "login = 'p@vel'\nwrong = '@_'\nok = True\nfor s in login:\n    if s in wrong:\n        ok = False\nif ok:\n    print('Ок')\nelse:\n    print('Нет')",
+      input: '',
+      answer: 'Нет'
+    },
+    {
+      code: "word = 'кот'\ncount = 0\nfor s in word:\n    count += 1\nprint(count)",
+      input: '',
+      answer: '3'
+    },
+    {
+      code: "word = 'молоко'\nvowels = 'ое'\ncount = 0\nfor s in word:\n    if s in vowels:\n        count += 1\nprint(count)",
+      input: '',
+      answer: '3'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      inputEl.textContent = '';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    inputEl.textContent = tasks[i].input;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = ansEl.value.trim();
+    var correct = tasks[i].answer;
+    answered++;
+    if (user.toLowerCase() === correct.toLowerCase()){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + correct;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 8;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>

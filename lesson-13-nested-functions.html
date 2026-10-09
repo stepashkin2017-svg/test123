@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Вложенные функции — урок 13</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 13 · ВЛОЖЕННЫЕ ФУНКЦИИ · одна вызывает другую
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(91,75,196,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(12,124,134,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(184,50,90,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .fncall{color:#8EE6A0;font-weight:700;background:rgba(142,230,160,.13);border-radius:4px;padding:0 3px}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .ret{color:#FF8FB0;font-weight:800;background:rgba(184,50,90,.2);border-radius:4px;padding:0 4px}
+.code-full .indent{
+  background:rgba(91,75,196,.22);
+  border-radius:4px;padding:0 2px;
+  color:#C9B8FF;
+}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table td:first-child code{
+  background:var(--bg);padding:2px 8px;border-radius:6px;
+}
+.print-table td:last-child{
+  font-family:var(--font-code);font-weight:700;color:var(--a3);
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* схема вложенных вызовов */
+.nest-diagram{
+  background:var(--bg);border-radius:18px;
+  padding:24px;margin:22px 0;
+  overflow-x:auto;
+}
+.nest-diagram .fn-box{
+  background:var(--card);
+  border-radius:14px;
+  padding:18px 22px;
+  margin:14px 0;
+  box-shadow:0 6px 16px rgba(23,32,51,.06);
+  border-left:6px solid var(--c,var(--a1));
+}
+.nest-diagram .fn-box .title{
+  font:800 15px var(--font-ui);
+  color:var(--c,var(--a1));
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:10px;
+}
+.nest-diagram .fn-box .body{
+  font:700 14px var(--font-code);
+  color:var(--text);
+  line-height:1.7;
+  white-space:pre-wrap;
+}
+.nest-diagram .fn-box .body .c-call{
+  color:var(--a5);font-weight:800;
+  background:rgba(58,125,44,.12);
+  border-radius:4px;padding:1px 5px;
+}
+.nest-diagram .arrow-down{
+  text-align:center;font-size:26px;
+  color:var(--muted);line-height:1;
+  margin:4px 0;
+}
+
+/* анимация порядка вызова */
+.call-trace{
+  display:flex;flex-direction:column;gap:8px;
+  background:var(--bg);border-radius:18px;padding:20px;
+  margin:22px 0;
+}
+.trace-step{
+  padding:12px 16px;background:var(--card);
+  border-radius:12px;border-left:5px solid var(--a3);
+  transition:.25s ease;opacity:.55;
+  font:700 14.5px var(--font-code);
+  color:var(--text);line-height:1.5;
+}
+.trace-step.active{
+  border-left-color:var(--a1);
+  box-shadow:0 8px 20px rgba(12,124,134,.15);
+  opacity:1;transform:translateX(6px);
+}
+.trace-step .hl{color:var(--a1);font-weight:800}
+.trace-step .retn{color:var(--a4);font-weight:800}
+
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13.5px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#C9B8FF,#B5E7A0 50%,#FFD98E);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎉";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#3A2A7D}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#3A2A7D;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#3A7D2C,#0C7C86);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(58,125,44,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .trace-step{font-size:13px;padding:10px 12px}
+  .nest-diagram .fn-box .body{font-size:12.5px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🏫</span>
+    <span>🔗</span>
+    <span>🤖</span>
+  </div>
+  <h1>Функции, которые работают вместе</h1>
+  <p class="lead">
+    Центр «Успех» снова обратился к Байту. Задач стало больше,
+    и каждая — сложнее. Оказывается, можно сделать <b>несколько
+    маленьких функций</b> и вызывать одну из другой. Тогда
+    программа остаётся понятной даже когда растёт.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>🔗 Вложенные функции</span>
+    <span>🎯 Одна функция — одно назначение</span>
+    <span>📊 Задача про ИМТ</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💭</span>
+      <span>🧩</span>
+      <span>🔗</span>
+      <span>🎟️</span>
+      <span>📊</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–6 мин</span>
+    <span class="icon">💭</span>
+    <div class="ttl">Задача всё сложнее</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">6–14 мин</span>
+    <span class="icon">🧩</span>
+    <div class="ttl">Монолитная функция</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">14–24 мин</span>
+    <span class="icon">🔗</span>
+    <div class="ttl">Разбиваем на две</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">24–32 мин</span>
+    <span class="icon">🎟️</span>
+    <div class="ttl">Скидка на поездку</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">32–40 мин</span>
+    <span class="icon">📊</span>
+    <div class="ttl">Задача про ИМТ</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">40–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и квиз</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · НОВЫЙ ЗАКАЗ -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–6 минут · 💭 Задача усложняется</span>
+  <h2>Скидка на абонемент в планетарий</h2>
+  <p class="sub">
+    Директор центра «Успех» остался доволен первой частью
+    автоматизации. Теперь присылает новый блок задач — и они
+    явно сложнее.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Задача: ученикам с высоким средним баллом даётся скидка
+      на абонемент в планетарий. Программа спрашивает оценки
+      и считает средний балл. Если он больше или равен <b>4.7</b> —
+      скидка 15%, иначе — 0%.
+    </div>
+  </div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что должна вывести программа</em></div>
+    <pre class="term-body"><span class="dim">Оценка (0 — завершить): </span><span class="hl">4</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">0</span>
+Скидка на абонемент (%): <span class="ok">15</span></pre>
+  </div>
+
+  <p>Байт уже собрался писать код — но тут подумал.</p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Стоп. А ведь <b>подсчёт среднего балла</b> наверняка
+      понадобится ещё много раз: допуск к олимпиаде, отбор на
+      факультативы, скидка на поездки. Если я сейчас напишу
+      всё одной большой функцией — завтра придётся
+      копировать этот код снова и снова.
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">💭 Идея</div>
+    <p>
+      Разделим задачу на две части:
+    </p>
+    <p>
+      <b>1.</b> Посчитать средний балл — отдельная функция
+      <code>average_grade()</code>.<br>
+      <b>2.</b> Решить про скидку — отдельная функция
+      <code>set_discount()</code>. Внутри неё будем вызывать
+      первую.
+    </p>
+    <p>
+      Каждая функция будет делать <b>одно своё дело</b>.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · МОНОЛИТНАЯ ФУНКЦИЯ -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 6–14 минут · 🧩 Сначала — как плохо</span>
+  <h2>Одна большая функция</h2>
+  <p class="sub">
+    Первое, что приходит в голову — написать одну функцию,
+    которая делает всё. Посмотрим, как она выглядит.
+  </p>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">average_grade</span>():
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Оценка (0 — завершить): '</span>))
+    total = <span class="num">0</span>
+    average = <span class="num">0</span>
+
+    <span class="kw">while</span> grade != <span class="num">0</span>:
+        average += grade
+        total += <span class="num">1</span>
+        grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Оценка (0 — завершить): '</span>))
+
+    average /= total
+
+    <span class="kw">if</span> average >= <span class="num">4.7</span>:
+        <span class="ret">return</span> <span class="num">15</span>
+    <span class="kw">else</span>:
+        <span class="ret">return</span> <span class="num">0</span>
+
+<span class="fn">print</span>(<span class="str">'Скидка на абонемент (%):'</span>, <span class="fncall">average_grade</span>())</div>
+
+  <p>
+    Работает? Да. Но обрати внимание: функция называется
+    <code>average_grade</code> — «средний балл». А возвращает
+    она… скидку. Это сбивает с толку.
+  </p>
+
+  <div class="explain danger">
+    <div class="ttl">🚨 Что не так</div>
+    <p>
+      <b>1.</b> Название не соответствует действию. Функция
+      называется «средний балл», а внутри считает скидку.
+    </p>
+    <p>
+      <b>2.</b> Средний балл «зашит» внутри. Если завтра он
+      понадобится для другой задачи (олимпиады, факультатива),
+      придётся копировать весь код.
+    </p>
+    <p>
+      <b>3.</b> Изменение правила скидки требует правки функции,
+      которая вообще-то «про средний балл».
+    </p>
+  </div>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Кажется, я понял принцип. <b>Одна функция — одно
+      назначение.</b> Пусть <code>average_grade()</code>
+      считает только средний балл. А про скидку позаботится
+      отдельная функция.
+    </div>
+  </div>
+
+  <div class="def-card">
+    <div class="term">Правило: одна функция — одно назначение</div>
+    <div class="def">
+      Вместо одной громоздкой функции лучше сделать
+      <b>несколько маленьких</b>. Каждая делает <b>одну</b>
+      понятную вещь.
+    </div>
+    <div class="ex">
+      <code>average_grade()</code> — считает средний балл.<br>
+      <code>set_discount()</code> — считает скидку.<br>
+      Каждая функция делает только своё дело.
+    </div>
+  </div>
+
+  <!-- Интерактив: какое имя лучше -->
+  <div class="scene">
+    <h4>Подходит ли имя функции?</h4>
+    <p class="hint">
+      Посмотри на код и скажи: имя функции соответствует тому,
+      что она делает?
+    </p>
+
+    <div id="g1task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g1code"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button type="button" class="yn-btn" data-v="ok" style="padding:16px;border:3px solid var(--a5);background:linear-gradient(180deg,rgba(58,125,44,.12),rgba(58,125,44,.04));border-radius:14px;cursor:pointer;font:800 15px var(--font-ui);color:var(--a5)">✅ Имя подходит</button>
+      <button type="button" class="yn-btn" data-v="bad" style="padding:16px;border:3px solid var(--red);background:linear-gradient(180deg,rgba(180,35,24,.1),rgba(180,35,24,.03));border-radius:14px;cursor:pointer;font:800 15px var(--font-ui);color:var(--red)">❌ Имя не подходит</button>
+    </div>
+    <div id="g1msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g1score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · РАЗБИВАЕМ НА ДВЕ -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 14–24 минут · 🔗 Две функции</span>
+  <h2>Разбиваем на две функции</h2>
+  <p class="sub">
+    Теперь каждая функция — про своё. А вместе они делают
+    всю работу. Одна вызывает другую.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Вложенный вызов функции</div>
+    <div class="def">
+      Это когда <b>внутри одной функции вызывается другая</b>.
+      То же правило вложенности, что мы видели у условий и циклов,
+      работает и для функций.
+    </div>
+    <div class="ex">
+      <code>set_discount()</code> вызывает
+      <code>average_grade()</code>, чтобы получить средний балл.
+    </div>
+  </div>
+
+  <h3>Новый код</h3>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">average_grade</span>():
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Оценка (0 — завершить): '</span>))
+    total = <span class="num">0</span>
+    average = <span class="num">0</span>
+
+    <span class="kw">while</span> grade != <span class="num">0</span>:
+        average += grade
+        total += <span class="num">1</span>
+        grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Оценка (0 — завершить): '</span>))
+
+    average /= total
+    <span class="ret">return</span> average
+
+<span class="kw">def</span> <span class="fn">set_discount</span>():
+    avg = <span class="fncall">average_grade</span>()   <span class="cm"># ← вызов первой функции</span>
+    <span class="kw">if</span> avg >= <span class="num">4.7</span>:
+        <span class="ret">return</span> <span class="num">15</span>
+    <span class="kw">else</span>:
+        <span class="ret">return</span> <span class="num">0</span>
+
+<span class="fn">print</span>(<span class="str">'Скидка на абонемент (%):'</span>, <span class="fncall">set_discount</span>())</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Оценка (0 — завершить): </span><span class="hl">4</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">0</span>
+Скидка на абонемент (%): <span class="ok">15</span></pre>
+  </div>
+
+  <h3>Как это устроено</h3>
+
+  <div class="nest-diagram">
+    <div class="fn-box" style="--c:var(--a1)">
+      <div class="title">Основная программа</div>
+      <div class="body"><span class="c-call">set_discount()</span></div>
+    </div>
+    <div class="arrow-down">↓</div>
+    <div class="fn-box" style="--c:var(--a3)">
+      <div class="title">Функция set_discount</div>
+      <div class="body">avg = <span class="c-call">average_grade()</span>
+если avg >= 4.7 → return 15
+иначе → return 0</div>
+    </div>
+    <div class="arrow-down">↓</div>
+    <div class="fn-box" style="--c:var(--a5)">
+      <div class="title">Функция average_grade</div>
+      <div class="body">спрашивает оценки
+считает среднее
+return average</div>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Что произошло</div>
+    <p>
+      <b>1.</b> Основная программа вызывает
+      <code>set_discount()</code>.<br>
+      <b>2.</b> Та вызывает <code>average_grade()</code> и получает
+      средний балл.<br>
+      <b>3.</b> Сравнивает балл с 4.7 и решает про скидку.<br>
+      <b>4.</b> Возвращает скидку в основную программу.
+    </p>
+    <p>
+      Три уровня — как матрёшка из уроков 6 и 10.
+    </p>
+  </div>
+
+  <h3>Смотрим на порядок вызова</h3>
+
+  <div class="call-trace" id="loop1">
+    <div class="trace-step">
+      Программа запускается и доходит до <span class="hl">set_discount()</span>
+    </div>
+    <div class="trace-step">
+      Заходим внутрь <span class="hl">set_discount</span>. Встречаем <span class="hl">average_grade()</span>.
+    </div>
+    <div class="trace-step">
+      Прыгаем в <span class="hl">average_grade</span>. Спрашиваем оценки, считаем среднее.
+    </div>
+    <div class="trace-step">
+      <span class="retn">return average</span> — средний балл возвращается в set_discount.
+    </div>
+    <div class="trace-step">
+      set_discount сравнивает балл с 4.7 и решает про скидку.
+    </div>
+    <div class="trace-step">
+      <span class="retn">return 15</span> — скидка возвращается в основную программу.
+    </div>
+    <div class="trace-step">
+      print печатает результат.
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
+    <button type="button" id="play1Btn" style="padding:12px 22px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;font:800 15px var(--font-ui);cursor:pointer;box-shadow:0 8px 18px rgba(91,75,196,.3)">
+      ▶ Показать порядок
+    </button>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">💡 Что мы получили</div>
+    <p>
+      Теперь <code>average_grade()</code> можно вызывать в любой
+      другой программе — для олимпиады, для факультатива, где
+      угодно. Это отдельная, полезная функция.
+    </p>
+    <p>
+      А <code>set_discount()</code> знает только про скидку и
+      просто использует готовый результат.
+    </p>
+  </div>
+
+  <!-- Интерактив: порядок вызова -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Данные для ввода указаны. Напиши, что вернёт
+      <code>set_discount()</code>.
+    </p>
+
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g2code"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font:700 13.5px var(--font-code);color:var(--muted)" id="g2input"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g2answer" placeholder="Что вернёт?" style="text-align:center">
+      <button type="button" id="g2btn">Проверить</button>
+    </div>
+    <div id="g2msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · СКИДКА НА ПОЕЗДКУ -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 24–32 минут · 🎟️ Ещё одна задача</span>
+  <h2>Скидка на поездку в театр</h2>
+  <p class="sub">
+    Директор присылает ещё одну задачу — похожую, но с другим
+    правилом. Убедимся, что структура «двух функций» работает
+    и здесь.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Каждый год центр организует поездку в театр. Ученик может
+      получить скидку на стоимость — в зависимости от того,
+      сколько у него <b>пятёрок</b> за итоговые тесты:
+      от 1 до 3 — 3%, от 4 до 5 — 5%, больше 5 — 10%.
+    </div>
+  </div>
+
+  <h3>План</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>amount_five()</b> — спрашивает оценки и считает, сколько
+      среди них пятёрок.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>set_discount()</b> — вызывает первую и по числу пятёрок
+      решает, какая скидка.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      Основная программа вызывает <code>set_discount()</code>
+      и печатает результат.
+    </div>
+  </div>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">amount_five</span>():
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Оценка (0 — завершить): '</span>))
+    five = <span class="num">0</span>
+
+    <span class="kw">while</span> grade != <span class="num">0</span>:
+        <span class="kw">if</span> grade == <span class="num">5</span>:
+            five += <span class="num">1</span>
+        grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Оценка (0 — завершить): '</span>))
+
+    <span class="ret">return</span> five
+
+<span class="kw">def</span> <span class="fn">set_discount</span>():
+    n = <span class="fncall">amount_five</span>()
+    <span class="kw">if</span> n >= <span class="num">1</span> <span class="kw">and</span> n &lt;= <span class="num">3</span>:
+        <span class="ret">return</span> <span class="num">3</span>
+    <span class="kw">elif</span> n >= <span class="num">4</span> <span class="kw">and</span> n &lt;= <span class="num">5</span>:
+        <span class="ret">return</span> <span class="num">5</span>
+    <span class="kw">elif</span> n > <span class="num">5</span>:
+        <span class="ret">return</span> <span class="num">10</span>
+    <span class="kw">else</span>:
+        <span class="ret">return</span> <span class="num">0</span>
+
+<span class="fn">print</span>(<span class="str">'Скидка на поездку (%):'</span>, <span class="fncall">set_discount</span>())</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">4</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">5</span>
+<span class="dim">Оценка (0 — завершить): </span><span class="hl">0</span>
+Скидка на поездку (%): <span class="ok">5</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Структура та же</div>
+    <p>
+      <b>Первая функция</b> — собирает данные и считает нужное
+      число (в нашем случае — количество пятёрок).
+    </p>
+    <p>
+      <b>Вторая функция</b> — использует это число для принятия
+      решения по правилам.
+    </p>
+    <p>
+      Такая структура подходит почти для любой задачи, где
+      «сначала считаем, потом решаем».
+    </p>
+  </div>
+
+  <h3>Одна схема — много задач</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Задача</th><th>Что считаем</th><th>Что решаем</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Планетарий</td>
+        <td>Средний балл</td>
+        <td>Скидка 15% или 0%</td>
+      </tr>
+      <tr>
+        <td>Театр</td>
+        <td>Количество пятёрок</td>
+        <td>3% / 5% / 10% / 0%</td>
+      </tr>
+      <tr>
+        <td>Олимпиада</td>
+        <td>Балл участника</td>
+        <td>Диплом I / II / III / письмо</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="explain warn">
+    <div class="ttl">💡 Зачем это нужно</div>
+    <p>
+      Функцию подсчёта можно <b>переиспользовать</b> в разных
+      программах. А правила решения часто меняются — поэтому
+      их удобно держать <b>в отдельной функции</b>.
+    </p>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Что вернёт set_discount()?</h4>
+    <p class="hint">
+      Посмотри на оценки и напиши, какую скидку вернёт вторая
+      функция.
+    </p>
+
+    <div id="g3task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 15px var(--font-ui);color:var(--muted);margin-bottom:10px">Введённые оценки:</div>
+      <div style="font:800 24px var(--font-code);color:var(--a3);line-height:1.4" id="g3code">5, 5, 4, 5, 5, 0</div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g3answer" placeholder="Скидка в %" style="text-align:center">
+      <button type="button" id="g3btn">Проверить</button>
+    </div>
+    <div id="g3msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g3score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · ЗАДАЧА ПРО ИМТ -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 32–40 минут · 📊 Задача про ИМТ</span>
+  <h2>Индекс массы тела</h2>
+  <p class="sub">
+    Ещё одна задача от центра — уже не про оценки, а про
+    здоровье учителей. Здесь тоже удобно разделить работу
+    на две функции.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Центр использует индекс массы тела для оценки рисков
+      здоровья учителей. Формула: <b>вес / (рост × рост)</b>.
+      Программа спрашивает вес и рост, считает ИМТ и
+      говорит, в норме ли вес.
+    </div>
+  </div>
+
+  <h3>Правила оценки</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>ИМТ</th><th>Что значит</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>до 18.5 включительно</td><td>недостаточный вес</td></tr>
+      <tr><td>от 18.5 до 25 включительно</td><td>вес в норме</td></tr>
+      <tr><td>больше 25</td><td>избыточный вес</td></tr>
+    </tbody>
+  </table>
+
+  <h3>План</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>calc_bmi()</b> — считает ИМТ по весу и росту
+      и возвращает число.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>check_bmi()</b> — вызывает первую функцию, сравнивает
+      результат с границами и печатает вердикт.
+    </div>
+  </div>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">calc_bmi</span>(weight, height):
+    <span class="cm"># weight в кг, height в метрах</span>
+    index = weight / (height * height)
+    <span class="ret">return</span> index
+
+<span class="kw">def</span> <span class="fn">check_bmi</span>(weight, height):
+    index = <span class="fncall">calc_bmi</span>(weight, height)
+    <span class="kw">if</span> index &lt;= <span class="num">18.5</span>:
+        <span class="fn">print</span>(<span class="str">'Ваш ИМТ:'</span>, index, <span class="str">'— Недостаточный вес!'</span>)
+    <span class="kw">elif</span> index &lt;= <span class="num">25</span>:
+        <span class="fn">print</span>(<span class="str">'Ваш ИМТ:'</span>, index, <span class="str">'— Вес в норме!'</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'Ваш ИМТ:'</span>, index, <span class="str">'— Избыточный вес'</span>)
+
+weight = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">'Введите вес (кг): '</span>))
+height = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">'Введите рост (м): '</span>))
+<span class="fncall">check_bmi</span>(weight, height)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите вес (кг): </span><span class="hl">50</span>
+<span class="dim">Введите рост (м): </span><span class="hl">1.60</span>
+Ваш ИМТ: <span class="ok">19.53125</span> — Вес в норме!</pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор</div>
+    <p>
+      <b>calc_bmi()</b> — «посчитать индекс по формуле». Знает
+      только про формулу, ничего больше.
+    </p>
+    <p>
+      <b>check_bmi()</b> — «сравнить с границами и сказать вердикт».
+      Не знает, как формула устроена — просто получает от первой
+      функции число и сравнивает.
+    </p>
+    <p>
+      Так каждая функция делает <b>одно своё дело</b>.
+    </p>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">💡 Про float()</div>
+    <p>
+      Вес и рост могут быть дробными — например, 50.5 кг
+      или 1.72 м. Поэтому используем <code>float()</code>,
+      а не <code>int()</code>. Он превращает строку в дробное
+      число.
+    </p>
+  </div>
+
+  <h3>Как функции вызывают друг друга</h3>
+
+  <div class="nest-diagram">
+    <div class="fn-box" style="--c:var(--a1)">
+      <div class="title">Основная программа</div>
+      <div class="body">weight = ...
+height = ...
+<span class="c-call">check_bmi(weight, height)</span></div>
+    </div>
+    <div class="arrow-down">↓</div>
+    <div class="fn-box" style="--c:var(--a3)">
+      <div class="title">Функция check_bmi</div>
+      <div class="body">index = <span class="c-call">calc_bmi(weight, height)</span>
+если index ≤ 18.5 → «недостаточный вес»
+иначе если index ≤ 25 → «вес в норме»
+иначе → «избыточный вес»</div>
+    </div>
+    <div class="arrow-down">↓</div>
+    <div class="fn-box" style="--c:var(--a5)">
+      <div class="title">Функция calc_bmi</div>
+      <div class="body">index = weight / (height * height)
+return index</div>
+    </div>
+  </div>
+
+  <div class="explain danger">
+    <div class="ttl">🚨 Классическая ошибка в формуле</div>
+    <p>
+      Можно случайно написать <code>weight / height * height</code>
+      — без скобок. Тогда сначала выполнится деление, и результат
+      получится совсем другой.
+    </p>
+    <p>
+      <b>Правильно:</b> <code>weight / (height * height)</code> —
+      знаменатель обязательно в скобках.
+    </p>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Посмотри на данные и напиши, что напечатает check_bmi().
+    </p>
+
+    <div id="g4task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.7;color:var(--text);white-space:pre-wrap" id="g4code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g4answer" placeholder="Что напечатает?" style="text-align:center">
+      <button type="button" id="g4btn">Проверить</button>
+    </div>
+    <div id="g4msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g4score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 40–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Что такое вложенный вызов функции?</div>
+      <div class="opts">
+        <button type="button" class="opt">Когда функция определена внутри другой</button>
+        <button type="button" class="opt" data-correct="true">Когда одна функция вызывает другую</button>
+        <button type="button" class="opt">Когда функция возвращает две переменные</button>
+        <button type="button" class="opt">Когда у функции нет параметров</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Зачем разбивать одну большую функцию на несколько маленьких?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы программа выполнялась быстрее</button>
+        <button type="button" class="opt" data-correct="true">Чтобы код был понятнее и легко переиспользовался</button>
+        <button type="button" class="opt">Чтобы избежать ошибок</button>
+        <button type="button" class="opt">Это требование Python</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Что делает программа?</div>
+      <pre>def a():
+    return 5
+
+def b():
+    return a() + 1
+
+print(b())</pre>
+      <div class="opts">
+        <button type="button" class="opt">5</button>
+        <button type="button" class="opt" data-correct="true">6</button>
+        <button type="button" class="opt">a() + 1</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Что окажется в result?</div>
+      <pre>def double(n):
+    return n * 2
+
+def triple(n):
+    return n * 3
+
+result = double(triple(2))</pre>
+      <div class="opts">
+        <button type="button" class="opt">6</button>
+        <button type="button" class="opt" data-correct="true">12</button>
+        <button type="button" class="opt">5</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Какое правило помогает делать функции понятными?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чем больше функций — тем лучше</button>
+        <button type="button" class="opt" data-correct="true">Одна функция — одно назначение</button>
+        <button type="button" class="opt">У функции не должно быть параметров</button>
+        <button type="button" class="opt">Все функции должны что-то печатать</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Что вернёт set_discount(), если средний балл 4.5?</div>
+      <pre>def average():
+    return 4.5
+
+def set_discount():
+    avg = average()
+    if avg >= 4.7:
+        return 15
+    else:
+        return 0</pre>
+      <div class="opts">
+        <button type="button" class="opt">15</button>
+        <button type="button" class="opt" data-correct="true">0</button>
+        <button type="button" class="opt">4.5</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Что не так с формулой ИМТ в этом коде?</div>
+      <pre>def calc_bmi(weight, height):
+    return weight / height * height</pre>
+      <div class="opts">
+        <button type="button" class="opt">Не хватает return</button>
+        <button type="button" class="opt" data-correct="true">Нет скобок — знаменатель умножится отдельно</button>
+        <button type="button" class="opt">Нужно использовать int()</button>
+        <button type="button" class="opt">Всё правильно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Что одна функция может вызывать другую.<br>
+      <b>2.</b> Что правило «одна функция — одно назначение»
+      помогает держать код чистым.<br>
+      <b>3.</b> Что возвращённое значение можно сразу передать
+      в другую функцию.<br>
+      <b>4.</b> Как делать программу по схеме «сначала считаем,
+      потом решаем».<br>
+      <b>5.</b> Что скобки в формуле важны — даже одна пара
+      может изменить всё.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на вложенные функции. Нажми «Открыть в Playground» —
+    стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Как работать.</b> В каждой задаче — две функции: одна считает,
+    другая решает. Вторая вызывает первую внутри себя.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Двойной вызов</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Создай <code>one()</code> возвращает 10, <code>two()</code>
+        возвращает <code>one() * 2</code>. Вызови <code>two()</code>
+        и напечатай результат.
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Внутри второй функции просто вызывай первую.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def one():
+    return 10
+
+def two():
+    return one() * 2
+
+print(two())</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Средний балл → скидка</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        <code>average()</code> возвращает среднее трёх оценок.
+        <code>discount()</code> вызывает её: если балл ≥ 4.5 — 10%,
+        иначе — 0.
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Сначала объяви <code>average()</code>, потом
+        <code>discount()</code>, внутри которой вызывай первую.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def average(a, b, c):
+    return (a + b + c) / 3
+
+def discount(a, b, c):
+    avg = average(a, b, c)
+    if avg >= 4.5:
+        return 10
+    return 0
+
+print(discount(5, 5, 4))</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Число пятёрок</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        <code>count_five(a, b, c)</code> возвращает количество
+        пятёрок среди трёх оценок. <code>prize()</code> вызывает
+        её и возвращает строку: «диплом» при двух и больше,
+        иначе — «без награды».
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>count_five использует <code>if</code> внутри для
+        каждой оценки.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def count_five(a, b, c):
+    n = 0
+    if a == 5: n += 1
+    if b == 5: n += 1
+    if c == 5: n += 1
+    return n
+
+def prize(a, b, c):
+    n = count_five(a, b, c)
+    if n >= 2:
+        return "диплом"
+    return "без награды"
+
+print(prize(5, 5, 3))</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">ИМТ</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        <code>calc_bmi(w, h)</code> возвращает ИМТ.
+        <code>verdict(w, h)</code> вызывает её и возвращает
+        «норма» (18.5–25), «мало» или «много».
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Формула: <code>w / (h * h)</code>. Проверки —
+        по границам 18.5 и 25.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def calc_bmi(w, h):
+    return w / (h * h)
+
+def verdict(w, h):
+    index = calc_bmi(w, h)
+    if index <= 18.5:
+        return "мало"
+    elif index <= 25:
+        return "норма"
+    else:
+        return "много"
+
+print(verdict(50, 1.60))</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Кафе</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        <code>total(price, count)</code> возвращает сумму покупки.
+        <code>with_tip(price, count)</code> вызывает её и добавляет
+        10% чаевых.
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Внутри второй функции: <code>s = total(...); return s * 1.1</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def total(price, count):
+    return price * count
+
+def with_tip(price, count):
+    s = total(price, count)
+    return s * 1.1
+
+print(with_tip(250, 4))</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Цепочка из трёх функций</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        <code>first()</code> возвращает 2.
+        <code>second()</code> возвращает <code>first() + 3</code>.
+        <code>third()</code> возвращает <code>second() * 4</code>.
+        Вызови <code>third()</code>.
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Каждая следующая вызывает предыдущую.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def first():
+    return 2
+
+def second():
+    return first() + 3
+
+def third():
+    return second() * 4
+
+print(third())</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Своя программа</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Придумай задачу, в которой нужны <b>две</b> функции:
+        одна считает, другая решает. Например, перевод
+        температуры: одна функция переводит, другая говорит
+        «холодно/тепло/жарко».
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Структура: <code>convert(...)</code> возвращает число,
+        <code>verdict(...)</code> вызывает её и возвращает строку.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def c_to_f(c):
+    return c * 9 / 5 + 32
+
+def verdict(c):
+    f = c_to_f(c)
+    if f < 50:
+        return "холодно"
+    elif f < 80:
+        return "тепло"
+    return "жарко"
+
+print(verdict(20))</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Программа должна вернуть результат вызова
+        <code>double(5)</code> через функцию <code>run()</code>.
+        Но функция <code>run()</code> забыла вызвать первую.
+        Исправь.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Внутри run() должно быть <code>return double(n)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>def double(n):
+    return n * 2
+
+def run(n):
+    return double(n)
+
+print(run(5))</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># two() вызывает one()
+def one():
+    return 10
+
+def two():
+    ...
+
+print(two())
+
+</template>
+  <template data-task="2"># Средний балл → скидка
+def average(a, b, c):
+    return (a + b + c) / 3
+
+def discount(a, b, c):
+    # вызов average(...)
+    ...
+
+print(discount(5, 5, 4))
+
+</template>
+  <template data-task="3"># Считаем пятёрки среди трёх оценок
+def count_five(a, b, c):
+    ...
+
+def prize(a, b, c):
+    ...
+
+print(prize(5, 5, 3))
+
+</template>
+  <template data-task="4"># ИМТ: одна функция считает, другая оценивает
+def calc_bmi(w, h):
+    return w / (h * h)
+
+def verdict(w, h):
+    ...
+
+print(verdict(50, 1.60))
+
+</template>
+  <template data-task="5"># Итог + чаевые
+def total(price, count):
+    return price * count
+
+def with_tip(price, count):
+    ...
+
+print(with_tip(250, 4))
+
+</template>
+  <template data-task="6"># Цепочка из трёх функций
+def first():
+    return 2
+
+def second():
+    ...
+
+def third():
+    ...
+
+print(third())
+
+</template>
+  <template data-task="7"># Своя программа: одна функция считает, другая решает
+
+</template>
+  <template data-task="8"># run() забыла вызвать double(). Исправь.
+def double(n):
+    return n * 2
+
+def run(n):
+    ...
+
+print(run(5))
+</template>
+</div>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🎉</span>
+  <h2>Функции научились работать вместе!</h2>
+ <p>
+    Ты научил Байта использовать вложенные вызовы функций. Теперь
+    можно решать большие задачи, разбивая их на маленькие понятные
+    кусочки: одна функция считает, другая решает, третья печатает.
+    Это был последний урок модуля про функции. Дальше — новые
+    инструменты и модули.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+      <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="index.html">
+      К программе курса →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 13 · Вложенные функции · 🏫 Центр «Успех» · 🔗 одна вызывает другую
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   АНИМАЦИЯ ПОРЯДКА ВЫЗОВА
+   ============================================================ */
+(function(){
+  var steps = document.querySelectorAll('#loop1 .trace-step');
+  if (!steps.length) return;
+  var btn = document.getElementById('play1Btn');
+  var playing = false;
+  var timer = null;
+
+  function stop(){
+    if (timer) clearTimeout(timer);
+    steps.forEach(function(s){ s.classList.remove('active'); });
+    playing = false;
+    btn.textContent = '▶ Показать порядок';
+  }
+
+  function step(i){
+    if (i >= steps.length){
+      setTimeout(function(){
+        stop();
+        btn.textContent = '↻ Ещё раз';
+      }, 1200);
+      return;
+    }
+    steps.forEach(function(s){ s.classList.remove('active'); });
+    steps[i].classList.add('active');
+    timer = setTimeout(function(){ step(i + 1); }, 900);
+  }
+
+  btn.addEventListener('click', function(){
+    if (playing) return;
+    playing = true;
+    btn.textContent = '⏸ Идёт показ…';
+    step(0);
+  });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: подходит ли имя функции
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g1code');
+  if (!codeEl) return;
+  var btns = document.querySelectorAll('.yn-btn');
+  var msg = document.getElementById('g1msg');
+  var scoreEl = document.getElementById('g1score');
+
+  var tasks = [
+    {
+      code: "def average_grade():\n    ...\n    return 4.5",
+      v: 'ok'
+    },
+    {
+      code: "def average_grade():\n    ...\n    if average >= 4.7:\n        return 15\n    return 0",
+      v: 'bad'
+    },
+    {
+      code: "def set_discount():\n    ...\n    if avg >= 4.7:\n        return 15\n    return 0",
+      v: 'ok'
+    },
+    {
+      code: "def average_grade():\n    print('Привет!')\n    return 5",
+      v: 'bad'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+  var locked = false;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      btns.forEach(function(b){ b.disabled = true; b.style.opacity = '.5'; });
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    msg.textContent = '';
+    btns.forEach(function(b){
+      b.disabled = false; b.style.opacity = '1';
+      b.style.transform = '';
+    });
+    locked = false;
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (locked) return;
+      locked = true;
+      var ok = b.dataset.v === tasks[i].v;
+      answered++;
+      if (ok){
+        score++;
+        b.style.transform = 'scale(1.05)';
+        msg.textContent = '✅ Верно!';
+        msg.style.color = 'var(--a5)';
+      } else {
+        msg.textContent = '❌ Правильный ответ: ' + (tasks[i].v === 'ok' ? 'имя подходит' : 'имя не подходит');
+        msg.style.color = 'var(--red)';
+      }
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+      setTimeout(function(){ i++; render(); }, 1100);
+    });
+  });
+
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: что вернёт set_discount (средний балл)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g2code');
+  if (!codeEl) return;
+  var inputEl = document.getElementById('g2input');
+  var ansEl = document.getElementById('g2answer');
+  var btn = document.getElementById('g2btn');
+  var msg = document.getElementById('g2msg');
+  var scoreEl = document.getElementById('g2score');
+
+  var code = "def average_grade():\n    # спрашивает оценки, считает среднее\n    return average\n\ndef set_discount():\n    avg = average_grade()\n    if avg >= 4.7:\n        return 15\n    return 0";
+
+  var tasks = [
+    { input: 'Средний балл: 4.8', answer: '15' },
+    { input: 'Средний балл: 4.7', answer: '15' },
+    { input: 'Средний балл: 4.5', answer: '0' },
+    { input: 'Средний балл: 3.2', answer: '0' }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      inputEl.textContent = '';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = code;
+    inputEl.textContent = tasks[i].input;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = ansEl.value.trim();
+    var correct = tasks[i].answer;
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + correct;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: скидка на поездку
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g3code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g3answer');
+  var btn = document.getElementById('g3btn');
+  var msg = document.getElementById('g3msg');
+  var scoreEl = document.getElementById('g3score');
+
+  var tasks = [
+    { code: '5, 5, 4, 5, 5, 0', answer: '5' },
+    { code: '5, 5, 5, 5, 5, 5, 0', answer: '10' },
+    { code: '5, 4, 4, 3, 0', answer: '3' },
+    { code: '3, 4, 4, 0', answer: '0' },
+    { code: '5, 5, 5, 5, 0', answer: '5' }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = ansEl.value.trim().replace('%','');
+    var correct = tasks[i].answer;
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + correct + '%';
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 4: ИМТ
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g4code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g4answer');
+  var btn = document.getElementById('g4btn');
+  var msg = document.getElementById('g4msg');
+  var scoreEl = document.getElementById('g4score');
+
+  var tasks = [
+    { code: 'Вес: 50 кг, рост: 1.60 м\nИМТ = 19.53', answer: 'вес в норме' },
+    { code: 'Вес: 45 кг, рост: 1.70 м\nИМТ ≈ 15.57', answer: 'недостаточный вес' },
+    { code: 'Вес: 92 кг, рост: 1.72 м\nИМТ ≈ 31.10', answer: 'избыточный вес' },
+    { code: 'Вес: 70 кг, рост: 1.75 м\nИМТ = 22.86', answer: 'вес в норме' }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function norm(s){ return s.replace(/\s+/g, ' ').replace(/[!.]/g, '').trim().toLowerCase(); }
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = norm(ansEl.value);
+    var correct = norm(tasks[i].answer);
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1100);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 13;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>

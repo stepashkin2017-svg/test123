@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Условный оператор — урок 5</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 5 · УСЛОВНЫЙ ОПЕРАТОР · кондитерская
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(184,50,90,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(185,102,10,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(91,75,196,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.kid-code{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:700 17px var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+}
+.kid-code .part{padding:6px 12px;border-radius:8px;display:inline-flex;align-items:center}
+.kid-code .name{background:rgba(12,124,134,.3);color:#8EE6A0}
+.kid-code .eq{background:transparent;color:#FFB454;font-size:22px;padding:0 4px}
+.kid-code .kw{background:rgba(255,180,84,.22);color:#FFB454;font-weight:800}
+.kid-code .func{background:rgba(201,184,255,.2);color:#C9B8FF}
+.kid-code .val{background:rgba(255,180,84,.2);color:#FFB454}
+.kid-code .val.str{background:rgba(142,230,160,.15);color:#8EE6A0}
+.kid-code .val.num{background:rgba(127,196,255,.2);color:#7FC4FF}
+.kid-code .comment{color:#7F90B0;font-style:italic;font-size:15px}
+
+/* блок кода с отступами — пре-форматированный */
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .indent{
+  background:rgba(91,75,196,.22);
+  border-radius:4px;padding:0 2px;
+  color:#C9B8FF;
+}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+/* True / False карточки */
+.bool-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;margin:22px 0;
+}
+@media(max-width:600px){.bool-row{grid-template-columns:1fr}}
+.bool-card{
+  border-radius:18px;padding:22px 20px;
+  text-align:center;font-size:17px;line-height:1.5;
+}
+.bool-card .big{
+  font:800 34px var(--font-code);
+  margin-bottom:10px;display:block;
+}
+.bool-card.true{
+  background:linear-gradient(180deg,#B5E7A0,#8FD97C);
+  color:#2E4A1F;
+}
+.bool-card.false{
+  background:linear-gradient(180deg,#FFCDD2,#FFB0B8);
+  color:#7A271A;
+}
+
+/* таблица */
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table td:first-child code{
+  background:var(--bg);padding:2px 8px;border-radius:6px;
+}
+.print-table td:last-child{
+  font-family:var(--font-code);font-weight:700;color:var(--a3);
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* блок-схема */
+.flow-scene{
+  background:var(--bg);border-radius:18px;
+  padding:24px;margin:22px 0;text-align:center;
+}
+.flow-row{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.flow-box{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:12px 22px;border-radius:12px;
+  font:700 15px var(--font-ui);
+  min-width:240px;text-align:center;
+  background:var(--card);border:2px solid var(--line);
+  color:var(--text);
+}
+.flow-box.start{border-radius:99px;background:linear-gradient(135deg,#C9B8FF,#A99BFF);color:#3A2A7D;border:none}
+.flow-box.end{border-radius:99px;background:linear-gradient(135deg,#C9B8FF,#A99BFF);color:#3A2A7D;border:none}
+.flow-box.io{
+  background:linear-gradient(135deg,#B5E7A0,#8FD97C);color:#2E4A1F;border:none;
+  transform:skewX(-12deg);
+}
+.flow-box.io span{transform:skewX(12deg)}
+.flow-box.cond{
+  background:linear-gradient(135deg,#FFD98E,#FFB454);color:#7A2D0A;border:none;
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+  padding:22px 40px;min-width:260px;
+}
+.flow-box.action{
+  background:linear-gradient(135deg,#FFCCD2,#FFA8B8);color:#7A271A;border:none;
+}
+.flow-arrow{
+  font-size:22px;color:var(--muted);line-height:1;
+}
+.flow-split{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:0 auto;max-width:600px;
+}
+.flow-label{
+  font:700 13px var(--font-code);
+  color:var(--muted);padding:2px 8px;
+}
+
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13.5px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#FFD98E,#FFCCD2 50%,#C9B8FF);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎉";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#7A2D0A}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#7A2D0A;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#B9660A,#B8325A);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(185,102,10,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .kid-code{font-size:15px;padding:16px 18px}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .bool-card .big{font-size:26px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🍰</span>
+    <span>🤖</span>
+    <span>✨</span>
+  </div>
+  <h1>Умные рекомендации</h1>
+  <p class="lead">
+    Байт получил заказ от кондитерской «Сладкие истории». Директор
+    хочет, чтобы сайт сам предлагал покупателям товары по их вкусам.
+    Значит, программе пора научиться <b>делать выбор</b>.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>🍰 Логика</span>
+    <span>✅ True и False</span>
+    <span>🧠 if / else</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>🍰</span>
+      <span>✅</span>
+      <span>⚖️</span>
+      <span>🔗</span>
+      <span>🧠</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================ -->
+<!-- ПЛАН -->
+<!-- ============================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–7 мин</span>
+    <span class="icon">🍰</span>
+    <div class="ttl">Заказ кондитерской</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">7–15 мин</span>
+    <span class="icon">✅</span>
+    <div class="ttl">True и False</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">15–23 мин</span>
+    <span class="icon">⚖️</span>
+    <div class="ttl">Операторы сравнения</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">23–30 мин</span>
+    <span class="icon">🔗</span>
+    <div class="ttl">Составные условия</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">30–40 мин</span>
+    <span class="icon">🧠</span>
+    <div class="ttl">if / else</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">40–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и практика</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ШАГ 1 · ЗАКАЗ КОНДИТЕРСКОЙ -->
+<!-- ============================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–7 минут · 🍰 Новый заказ</span>
+  <h2>Кондитерская «Сладкие истории»</h2>
+  <p class="sub">
+    Байт снова на связи. Ему поручили новый проект — на этот раз для
+    кондитерской. Программа должна <b>выбирать товар</b> по предпочтениям
+    покупателя.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Директор кондитерской объяснил задачу. Например, покупатель пишет,
+      что любит <b>конфеты</b>. Программа должна сразу понять это и
+      предложить <b>леденцы</b>. А если он любит что-то другое — предложить
+      <b>пирожные</b>.
+    </div>
+  </div>
+
+  <p>
+    Пока — упрощённая задача. В программе всего два варианта рекомендации:
+    <b>леденцы</b> или <b>пирожные</b>. Как решить, что выдать?
+  </p>
+
+  <h3>Блок-схема выбора</h3>
+
+  <p>
+    Программисты часто рисуют логику программы в виде схемы. Посмотри,
+    как это выглядит:
+  </p>
+
+  <div class="flow-scene">
+    <div class="flow-row">
+      <div class="flow-box io"><span>Ввод предпочтения покупателем</span></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box cond">Предпочтение — конфеты?</div>
+      <div class="flow-split">
+        <div style="text-align:center">
+          <div class="flow-label">Да</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box action">Вывод: леденцы</div>
+        </div>
+        <div style="text-align:center">
+          <div class="flow-label">Нет</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-box action">Вывод: пирожные</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box end">Конец</div>
+    </div>
+  </div>
+
+  <p>
+    В ромбике — вопрос. Программа отвечает на него «да» или «нет» и идёт
+    по одной из двух дорожек. Это и есть <b>выбор</b>.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Получается, что мне нужно уметь задавать программе <b>вопросы</b>,
+      на которые можно ответить только «да» или «нет». Например:
+      «предпочтение — это конфеты?» Да или нет?
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">💭 Как задавать вопросы компьютеру</div>
+    <p>
+      В программировании вопрос, на который можно ответить только
+      «истина» или «ложь», называется <b>условием</b>.
+    </p>
+    <p>
+      Условие — это как предложение: «на улице идёт дождь». Оно может быть
+      истинным или ложным. Именно так программа и принимает решения.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 2 · TRUE И FALSE -->
+<!-- ============================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 7–15 минут · ✅ Логический тип</span>
+  <h2>True и False — новый тип данных</h2>
+  <p class="sub">
+    Условие может быть только истинным или ложным. Для такого
+    «двухвариантного» значения в Python есть специальный тип.
+  </p>
+
+  <div class="bool-row">
+    <div class="bool-card true">
+      <span class="big">True</span>
+      «Истина». Условие выполняется.
+    </div>
+    <div class="bool-card false">
+      <span class="big">False</span>
+      «Ложь». Условие не выполняется.
+    </div>
+  </div>
+
+  <div class="def-card">
+    <div class="term">Логический тип данных</div>
+    <div class="def">
+      Это тип для программирования предложений, которые могут быть
+      <b>истинными</b> или <b>ложными</b>. Обозначается <code>bool</code>.
+    </div>
+    <div class="ex">
+      Возможные значения: <code>True</code> и <code>False</code>.
+      Пишутся с большой буквы.
+    </div>
+  </div>
+
+  <h3>Пример из жизни</h3>
+
+  <p>
+    У любого условия есть только два ответа. Сравни:
+  </p>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Предложение</th><th>Ответ</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Наличие больше проданного</td><td>True</td></tr>
+      <tr><td>Наличие меньше проданного</td><td>False</td></tr>
+      <tr><td>Возраст покупателя больше 18</td><td>True или False</td></tr>
+      <tr><td>Слово «уют» есть в отзыве</td><td>True или False</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Как записать в переменную</h3>
+
+  <div class="kid-code">
+    <span class="part name">checked</span>
+    <span class="eq">=</span>
+    <span class="part kw">True</span>
+  </div>
+  <div class="kid-code">
+    <span class="part name">is_sent</span>
+    <span class="eq">=</span>
+    <span class="part kw">False</span>
+  </div>
+  <div class="kid-code">
+    <span class="part func">print</span>
+    <span class="part">(</span>
+    <span class="part name">checked</span>
+    <span class="part">)</span>
+  </div>
+  <div class="kid-code">
+    <span class="part func">print</span>
+    <span class="part">(</span>
+    <span class="part name">is_sent</span>
+    <span class="part">)</span>
+  </div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Вывод программы</em></div>
+    <pre class="term-body"><span class="ok">True</span>
+<span class="err">False</span></pre>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Важно!</div>
+    <p>
+      <code>True</code> и <code>False</code> пишутся <b>с большой буквы</b>.
+      Если написать <code>true</code> или <code>false</code> — Python
+      подумает, что это имя переменной, и выдаст ошибку.
+    </p>
+  </div>
+
+  <!-- Интерактив: True или False -->
+  <div class="scene">
+    <h4>True или False?</h4>
+    <p class="hint">
+      Прочитай утверждение и выбери, истина это или ложь.
+    </p>
+
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 19px var(--font-ui);color:var(--text);line-height:1.4" id="g2statement">Загрузка…</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button type="button" class="tf-btn" data-v="true" style="padding:18px;border:3px solid var(--a5);background:linear-gradient(180deg,rgba(58,125,44,.12),rgba(58,125,44,.06));border-radius:14px;cursor:pointer;font:800 18px var(--font-code);color:var(--a5);transition:.15s ease">True</button>
+      <button type="button" class="tf-btn" data-v="false" style="padding:18px;border:3px solid var(--red);background:linear-gradient(180deg,rgba(180,35,24,.08),rgba(180,35,24,.03));border-radius:14px;cursor:pointer;font:800 18px var(--font-code);color:var(--red);transition:.15s ease">False</button>
+    </div>
+    <div id="g2msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 3 · ОПЕРАТОРЫ СРАВНЕНИЯ -->
+<!-- ============================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 15–23 минут · ⚖️ Сравнения</span>
+  <h2>Операторы сравнения</h2>
+  <p class="sub">
+    Чтобы получить True или False, нужно сравнить два значения.
+    Для этого в Python есть специальные операторы.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Например, у меня есть число на складе — 150 кг конфет. И я хочу
+      узнать, нужно ли заказывать ещё. Сравню наличие с минимумом —
+      50 кг. Как это записать?
+    </div>
+  </div>
+
+  <h3>Шесть операторов сравнения</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Оператор</th><th>Смысл</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>&gt;</td><td>больше</td></tr>
+      <tr><td>&lt;</td><td>меньше</td></tr>
+      <tr><td>==</td><td>равно</td></tr>
+      <tr><td>!=</td><td>не равно</td></tr>
+      <tr><td>&lt;=</td><td>меньше или равно</td></tr>
+      <tr><td>&gt;=</td><td>больше или равно</td></tr>
+    </tbody>
+  </table>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Не путай = и ==</div>
+    <p>
+      <b>Один знак</b> <code>=</code> — это <b>присваивание</b>:
+      «положи значение в переменную».
+    </p>
+    <p>
+      <b>Два знака</b> <code>==</code> — это <b>сравнение</b>:
+      «проверь, равны ли эти два значения». Результат — True или False.
+    </p>
+  </div>
+
+  <h3>Пример: склад конфет</h3>
+
+  <p>
+    Напишем программу, которая проверяет, нужно ли пополнять склад.
+    Минимум — 50 кг.
+  </p>
+
+  <div class="code-full"><span class="cm"># Спрашиваем остаток на складе</span>
+amount_store = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Наличие: '</span>))
+
+<span class="cm"># Сравниваем с минимумом</span>
+amount_min = <span class="num">50</span>
+delivery = amount_store &lt; amount_min
+
+<span class="fn">print</span>(<span class="str">'Нужна доставка:'</span>, delivery)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Наличие: </span><span class="hl">50</span>
+Нужна доставка: <span class="err">False</span>
+
+<span class="dim">Наличие: </span><span class="hl">49</span>
+Нужна доставка: <span class="ok">True</span></pre>
+  </div>
+
+  <p>
+    Когда на складе 50 кг — заказывать не нужно (<code>False</code>).
+    Когда 49 кг — уже нужно (<code>True</code>).
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Как это работает</div>
+    <p>
+      Оператор <code>&lt;</code> сравнивает два числа и возвращает
+      логическое значение: <code>True</code> или <code>False</code>.
+    </p>
+    <p>
+      Это значение можно сохранить в переменную или сразу напечатать.
+    </p>
+  </div>
+
+  <!-- Интерактив: сравни -->
+  <div class="scene">
+    <h4>Что вернёт сравнение?</h4>
+    <p class="hint">Напиши True или False — что выведет Python?</p>
+
+    <div id="g3task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 22px var(--font-code);color:var(--a3);line-height:1.5" id="g3code">print(5 > 2)</div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g3answer" placeholder="True или False" style="text-align:center">
+      <button type="button" id="g3btn">Проверить</button>
+    </div>
+    <div id="g3msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g3score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 4 · СОСТАВНЫЕ УСЛОВИЯ -->
+<!-- ============================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 23–30 минут · 🔗 and и or</span>
+  <h2>Составные условия</h2>
+  <p class="sub">
+    Иногда одной проверки мало. Нужно, чтобы выполнялись сразу два
+    условия — или хотя бы одно из двух.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Заказчик говорит: «Ошибка хранения возникает, когда склад почти
+      пуст <b>или</b> когда склад переполнен». Как мне соединить два
+      условия в одном?
+    </div>
+  </div>
+
+  <h3>Два логических оператора</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Оператор</th><th>Используется, когда нужно</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>and</td><td>Потребовать выполнения <b>двух</b> условий одновременно</td></tr>
+      <tr><td>or</td><td>Потребовать выполнения <b>хотя бы одного</b> из двух условий</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Пример: склад конфет</h3>
+
+  <p>
+    Ошибка хранения — если на складе меньше 50 кг <b>или</b> больше
+    300 кг. Значит, используем <code>or</code>.
+  </p>
+
+  <div class="code-full">amount_store = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Наличие: '</span>))
+
+error = amount_store &lt; <span class="num">50</span> <span class="kw">or</span> amount_store &gt; <span class="num">300</span>
+
+<span class="fn">print</span>(<span class="str">'Ошибка хранения: '</span>, error)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Наличие: </span><span class="hl">540</span>
+Ошибка хранения: <span class="ok">True</span>
+
+<span class="dim">Наличие: </span><span class="hl">275</span>
+Ошибка хранения: <span class="err">False</span></pre>
+  </div>
+
+  <p>
+    540 — больше 300, ошибка есть. 275 — в норме, ошибки нет.
+  </p>
+
+  <h3>Пример с and</h3>
+
+  <p>
+    А если нужно проверить, что склад <b>в норме</b> — то есть количество
+    от 50 до 300? Тогда нужен <code>and</code>:
+  </p>
+
+  <div class="code-full">amount_store = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Наличие: '</span>))
+
+ok = amount_store &gt;= <span class="num">50</span> <span class="kw">and</span> amount_store &lt;= <span class="num">300</span>
+
+<span class="fn">print</span>(<span class="str">'Склад в норме:'</span>, ok)</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Как Python считает составные условия</div>
+    <p>
+      Сначала вычисляются значения <b>простых</b> условий — например,
+      <code>amount_store &lt; 50</code>. Потом Python смотрит на логический
+      оператор (<code>and</code> или <code>or</code>) и объединяет
+      результаты в одно значение.
+    </p>
+  </div>
+
+  <!-- Интерактив: and / or -->
+  <div class="scene">
+    <h4>and или or?</h4>
+    <p class="hint">
+      Прочитай условие и выбери, какой оператор подойдёт.
+    </p>
+
+    <div id="g4task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 17px var(--font-ui);color:var(--text);line-height:1.5" id="g4statement">Загрузка…</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button type="button" class="andor-btn" data-v="and" style="padding:18px;border:3px solid var(--line);background:var(--card);border-radius:14px;cursor:pointer;font:800 20px var(--font-code);color:var(--text);transition:.15s ease">and</button>
+      <button type="button" class="andor-btn" data-v="or" style="padding:18px;border:3px solid var(--line);background:var(--card);border-radius:14px;cursor:pointer;font:800 20px var(--font-code);color:var(--text);transition:.15s ease">or</button>
+    </div>
+    <div id="g4msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g4score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 5 · IF / ELSE -->
+<!-- ============================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 30–40 минут · 🧠 Условный оператор</span>
+  <h2>Учим программу выбирать</h2>
+  <p class="sub">
+    Мы научились составлять условия. Теперь разберёмся, как заставить
+    программу <b>выполнять разные действия</b> в зависимости от того,
+    истинно условие или ложно.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Условный оператор</div>
+    <div class="def">
+      Это команда, <b>выполняющая или не выполняющая действие</b>
+      в зависимости от значения логического выражения.
+    </div>
+    <div class="ex">
+      Если условие истинно — одно действие. Если ложно — другое
+      (или ничего).
+    </div>
+  </div>
+
+  <h3>Две формы записи</h3>
+
+  <p><b>Форма 1.</b> Только <code>if</code> — действие выполняется, только если условие истинно.</p>
+
+  <div class="code-full"><span class="kw">if</span> условие:
+    <span class="indent">    </span>действие_1
+    <span class="indent">    </span>действие_2
+    <span class="indent">    </span>действие_3</div>
+
+  <p>
+    Если условие ложно — программа пропустит весь блок и пойдёт дальше.
+  </p>
+
+  <p><b>Форма 2.</b> <code>if / else</code> — два разных действия.</p>
+
+  <div class="code-full"><span class="kw">if</span> условие:
+    <span class="indent">    </span>действие_1
+<span class="kw">else</span>:
+    <span class="indent">    </span>действие_2</div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Два важных правила</div>
+    <p>
+      <b>1.</b> После условия <b>ставится двоеточие</b> <code>:</code><br>
+      <b>2.</b> Действия внутри блока пишутся <b>с отступом в 4 пробела</b>.
+      Отступ показывает Python, что эти команды — часть условного оператора.
+    </p>
+  </div>
+
+  <h3>Задача: рекомендация по вкусу</h3>
+
+  <p>
+    Программа спрашивает любимый вкус покупателя. Если ванильный —
+    предлагает чизкейк. Иначе — ореховый торт.
+  </p>
+
+  <div class="code-full">taste = <span class="fn">input</span>(<span class="str">'Введите любимый вкус: '</span>)
+taste = taste.lower()
+
+<span class="kw">if</span> taste == <span class="str">'ванильный'</span>:
+    <span class="fn">print</span>(<span class="str">'Попробуйте наш фирменный чизкейк!'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Попробуйте ореховый торт!'</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Введите любимый вкус: </span><span class="hl">Ванильный</span>
+Попробуйте наш фирменный чизкейк!
+
+<span class="dim">Введите любимый вкус: </span><span class="hl">шоколадный</span>
+Попробуйте ореховый торт!</pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор по шагам</div>
+    <p>
+      <b>1.</b> Программа спрашивает вкус и сохраняет ответ в <code>taste</code>.<br>
+      <b>2.</b> Метод <code>.lower()</code> приводит текст к нижнему
+      регистру — чтобы «Ванильный» и «ванильный» считались одинаковыми.<br>
+      <b>3.</b> Оператор <code>if taste == 'ванильный'</code> — проверяет
+      условие.<br>
+      <b>4.</b> Если True — печатает чизкейк. Если False — идёт в
+      <code>else</code> и печатает ореховый торт.
+    </p>
+  </div>
+
+  <h3>Задача: покупка по карте</h3>
+
+  <p>
+    Ещё один пример. Программа проверяет, хватит ли денег на карте
+    для покупки:
+  </p>
+
+  <div class="code-full">total = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Сумма к оплате: '</span>))
+balance = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Остаток на карте: '</span>))
+
+<span class="kw">if</span> total &gt; balance:
+    <span class="fn">print</span>(<span class="str">'Недостаточно средств'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Покупка одобрена'</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Сумма к оплате: </span><span class="hl">1500</span>
+<span class="dim">Остаток на карте: </span><span class="hl">900</span>
+<span class="err">Недостаточно средств</span>
+
+<span class="dim">Сумма к оплате: </span><span class="hl">800</span>
+<span class="dim">Остаток на карте: </span><span class="hl">1200</span>
+<span class="ok">Покупка одобрена</span></pre>
+  </div>
+
+  <!-- Интерактив: if / else -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Прочитай код и данные — что выведет программа?
+    </p>
+
+    <div id="g5task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.7;color:var(--text);white-space:pre-wrap" id="g5code"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font:700 14px var(--font-code);color:var(--muted)" id="g5input"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g5answer" placeholder="Что напечатает?" style="text-align:center">
+      <button type="button" id="g5btn">Проверить</button>
+    </div>
+    <div id="g5msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g5score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 40–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Что такое логический тип данных?</div>
+      <div class="opts">
+        <button type="button" class="opt">Тип для чисел</button>
+        <button type="button" class="opt" data-correct="true">Тип для предложений с ответом истина или ложь</button>
+        <button type="button" class="opt">Тип для строк</button>
+        <button type="button" class="opt">Тип для списка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Какие значения принимает логическая переменная?</div>
+      <div class="opts">
+        <button type="button" class="opt">true и false</button>
+        <button type="button" class="opt" data-correct="true">True и False</button>
+        <button type="button" class="opt">1 и 0</button>
+        <button type="button" class="opt">Да и Нет</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Чем отличается <code>=</code> от <code>==</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Ничем</button>
+        <button type="button" class="opt" data-correct="true">= это присваивание, == это сравнение</button>
+        <button type="button" class="opt">= сравнение, == присваивание</button>
+        <button type="button" class="opt">Оба — сравнение</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Что напечатает?</div>
+      <pre>print(10 > 3)</pre>
+      <div class="opts">
+        <button type="button" class="opt">True</button>
+        <button type="button" class="opt" data-correct="true">True</button>
+        <button type="button" class="opt">10</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Какой оператор проверит, что выполняются <b>оба</b> условия?</div>
+      <div class="opts">
+        <button type="button" class="opt">or</button>
+        <button type="button" class="opt" data-correct="true">and</button>
+        <button type="button" class="opt">not</button>
+        <button type="button" class="opt">==</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Что не так с этим кодом?</div>
+      <pre>if x > 5:
+print("Больше")</pre>
+      <div class="opts">
+        <button type="button" class="opt">Нет двоеточия</button>
+        <button type="button" class="opt" data-correct="true">Нет отступа у print</button>
+        <button type="button" class="opt">Нет else</button>
+        <button type="button" class="opt">Всё правильно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Сколько пробелов используется для отступа в Python?</div>
+      <div class="opts">
+        <button type="button" class="opt">1</button>
+        <button type="button" class="opt">2</button>
+        <button type="button" class="opt" data-correct="true">4</button>
+        <button type="button" class="opt">8</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Что такое логический тип данных и значения
+      <code>True</code>/<code>False</code>.<br>
+      <b>2.</b> Операторы сравнения: <code>&gt; &lt; == != &lt;= &gt;=</code>.<br>
+      <b>3.</b> Как соединять условия через <code>and</code> и <code>or</code>.<br>
+      <b>4.</b> Как пишется условный оператор <code>if / else</code>.<br>
+      <b>5.</b> Что нужны <b>двоеточие</b> и <b>отступ в 4 пробела</b>.<br>
+      <b>6.</b> Как заставить программу выбирать действие.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на условия и условный оператор. Нажми
+    «Открыть в Playground» — стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Как работать.</b> Открой задачу, напиши код, нажми <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.
+    Не забудь про двоеточие и отступ в 4 пробела.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Сравни числа</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси два числа и выведи результаты всех шести сравнений.
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Шесть команд print с операциями <code>&gt; &lt; == != &lt;= &gt;=</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>a = int(input("Первое: "))
+b = int(input("Второе: "))
+print(a > b)
+print(a < b)
+print(a == b)
+print(a != b)
+print(a <= b)
+print(a >= b)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Проверка возраста</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси возраст. Если 18 или больше — выведи «Взрослый»,
+        иначе — «Ребёнок».
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Условие <code>if age &gt;= 18:</code>, дальше <code>else:</code>.
+        Не забудь отступ.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>age = int(input("Возраст: "))
+if age >= 18:
+    print("Взрослый")
+else:
+    print("Ребёнок")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Рекомендация по вкусу</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси любимый вкус. Если «ванильный» — предложи чизкейк,
+        иначе — ореховый торт.
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Используй <code>.lower()</code>, чтобы не зависеть от регистра.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>taste = input("Любимый вкус: ").lower()
+if taste == "ванильный":
+    print("Попробуйте чизкейк!")
+else:
+    print("Попробуйте ореховый торт!")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Оплата по карте</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси сумму покупки и остаток на карте. Если денег не хватает —
+        «Недостаточно средств», иначе — «Покупка одобрена».
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Условие: <code>total &gt; balance</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>total = int(input("Сумма к оплате: "))
+balance = int(input("Остаток на карте: "))
+if total > balance:
+    print("Недостаточно средств")
+else:
+    print("Покупка одобрена")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Чётное или нечётное</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси число. Если оно делится на 2 без остатка — «Чётное»,
+        иначе — «Нечётное».
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Остаток от деления — оператор <code>%</code>. Проверка:
+        <code>n % 2 == 0</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>n = int(input("Число: "))
+if n % 2 == 0:
+    print("Чётное")
+else:
+    print("Нечётное")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Склад в норме</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси количество конфет на складе. Выведи True, если их
+        от 50 до 300 включительно. Иначе False.
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Используй <code>and</code>: <code>50 &lt;= n &lt;= 300</code>
+        или <code>n &gt;= 50 and n &lt;= 300</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>n = int(input("Наличие: "))
+ok = n >= 50 and n <= 300
+print(ok)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Ошибка хранения</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси количество. Выведи True, если склад почти пуст
+        (меньше 50) <b>или</b> переполнен (больше 300). Иначе False.
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Используй <code>or</code>: <code>n &lt; 50 or n &gt; 300</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>n = int(input("Наличие: "))
+error = n < 50 or n > 300
+print(error)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        В стартовом коде три ошибки: нет двоеточия, нет отступа,
+        неправильный оператор сравнения. Исправь.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Проверь: двоеточие после <code>if</code>? Отступ у print в 4
+        пробела? <code>==</code> для сравнения?</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>age = int(input("Возраст: "))
+if age >= 18:
+    print("Доступ разрешён")
+else:
+    print("Доступ запрещён")</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Спроси два числа и выведи шесть сравнений
+a = int(input("Первое: "))
+b = int(input("Второе: "))
+
+# print для >, <, ==, !=, <=, >=
+
+</template>
+  <template data-task="2">age = int(input("Возраст: "))
+
+# Если age >= 18 — «Взрослый», иначе «Ребёнок»
+
+</template>
+  <template data-task="3">taste = input("Любимый вкус: ").lower()
+
+# Если taste == "ванильный" — чизкейк, иначе — ореховый торт
+
+</template>
+  <template data-task="4">total = int(input("Сумма к оплате: "))
+balance = int(input("Остаток на карте: "))
+
+# Если total > balance — «Недостаточно средств»
+# Иначе — «Покупка одобрена»
+
+</template>
+  <template data-task="5">n = int(input("Число: "))
+
+# Если n % 2 == 0 — «Чётное», иначе — «Нечётное»
+
+</template>
+  <template data-task="6">n = int(input("Наличие: "))
+
+# ok = n >= 50 and n <= 300
+# print(ok)
+
+</template>
+  <template data-task="7">n = int(input("Наличие: "))
+
+# error = n < 50 or n > 300
+# print(error)
+
+</template>
+  <template data-task="8"># Три ошибки: нет двоеточия, нет отступа, неверный оператор
+age = int(input("Возраст: "))
+if age = 18
+print("Доступ разрешён")
+else:
+print("Доступ запрещён")
+</template>
+</div>
+
+<!-- ============================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🎉</span>
+  <h2>Программа научилась выбирать!</h2>
+  <p>
+    Ты научил Байта работать с логическим типом, операторами сравнения
+    и условным оператором. Теперь программа может принимать решения —
+    выбирать, что делать, в зависимости от условий. На следующем
+    уроке — <b>вложенный условный оператор</b>: несколько проверок
+    внутри одного условия. Байт ждёт!
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-06-nested-if.html">
+      Следующий урок: Вложенный условный оператор →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 5 · Условный оператор · 🍰 Кондитерская · 🧠 if / else
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: True или False
+   ============================================================ */
+(function(){
+  var stmtEl = document.getElementById('g2statement');
+  if (!stmtEl) return;
+  var btns = document.querySelectorAll('.tf-btn');
+  var msg = document.getElementById('g2msg');
+  var scoreEl = document.getElementById('g2score');
+
+  var tasks = [
+    { text: '5 больше 2',                        v: 'true'  },
+    { text: '10 меньше 4',                       v: 'false' },
+    { text: '7 равно 7',                         v: 'true'  },
+    { text: '3 не равно 3',                      v: 'false' },
+    { text: 'Возраст 16 — больше 18',            v: 'false' },
+    { text: 'Слово "уют" есть в строке "Уютно"', v: 'true'  }
+  ];
+  var i = 0, score = 0, answered = 0;
+  var locked = false;
+
+  function render(){
+    if (i >= tasks.length){
+      stmtEl.textContent = 'Готово! 🎉';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      btns.forEach(function(b){ b.disabled = true; b.style.opacity = '.5'; });
+      return;
+    }
+    stmtEl.textContent = tasks[i].text;
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    msg.textContent = '';
+    btns.forEach(function(b){ b.disabled = false; b.style.opacity = '1'; });
+    locked = false;
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (locked) return;
+      locked = true;
+      var ok = b.dataset.v === tasks[i].v;
+      answered++;
+      if (ok){
+        score++;
+        msg.textContent = '✅ Верно!';
+        msg.style.color = 'var(--a5)';
+      } else {
+        msg.textContent = '❌ Правильный ответ: ' + (tasks[i].v === 'true' ? 'True' : 'False');
+        msg.style.color = 'var(--red)';
+      }
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+      setTimeout(function(){ i++; render(); }, 1000);
+    });
+  });
+
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: что вернёт сравнение
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g3code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g3answer');
+  var btn = document.getElementById('g3btn');
+  var msg = document.getElementById('g3msg');
+  var scoreEl = document.getElementById('g3score');
+
+  var tasks = [
+    { code: 'print(5 > 2)',      answer: 'True'  },
+    { code: 'print(10 < 4)',     answer: 'False' },
+    { code: 'print(7 == 7)',     answer: 'True'  },
+    { code: 'print(3 != 3)',     answer: 'False' },
+    { code: 'print(15 >= 15)',   answer: 'True'  },
+    { code: 'print(100 <= 99)',  answer: 'False' },
+    { code: 'print("a" == "A")', answer: 'False' }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = ansEl.value.trim().toLowerCase();
+    var correct = tasks[i].answer.toLowerCase();
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 900);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: and или or
+   ============================================================ */
+(function(){
+  var stmtEl = document.getElementById('g4statement');
+  if (!stmtEl) return;
+  var btns = document.querySelectorAll('.andor-btn');
+  var msg = document.getElementById('g4msg');
+  var scoreEl = document.getElementById('g4score');
+
+  var tasks = [
+    { text: 'Нужно, чтобы выполнялись оба условия — и первое, и второе', v: 'and' },
+    { text: 'Нужно, чтобы выполнялось хотя бы одно из двух условий',       v: 'or'  },
+    { text: 'Возраст от 18 до 65 включительно',                            v: 'and' },
+    { text: 'Ошибка: склад меньше 50 или больше 300',                      v: 'or'  },
+    { text: 'Логин правильный И пароль правильный',                        v: 'and' }
+  ];
+  var i = 0, score = 0, answered = 0;
+  var locked = false;
+
+  function render(){
+    if (i >= tasks.length){
+      stmtEl.textContent = 'Готово! 🎉';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      btns.forEach(function(b){ b.disabled = true; b.style.opacity = '.5'; });
+      return;
+    }
+    stmtEl.textContent = tasks[i].text;
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    msg.textContent = '';
+    btns.forEach(function(b){
+      b.disabled = false;
+      b.style.opacity = '1';
+      b.style.borderColor = 'var(--line)';
+      b.style.background = 'var(--card)';
+      b.style.color = 'var(--text)';
+    });
+    locked = false;
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (locked) return;
+      locked = true;
+      var ok = b.dataset.v === tasks[i].v;
+      answered++;
+      if (ok){
+        score++;
+        b.style.background = 'rgba(58,125,44,.15)';
+        b.style.borderColor = 'var(--a5)';
+        b.style.color = 'var(--a5)';
+        msg.textContent = '✅ Верно!';
+        msg.style.color = 'var(--a5)';
+      } else {
+        b.style.background = 'rgba(180,35,24,.1)';
+        b.style.borderColor = 'var(--red)';
+        b.style.color = 'var(--red)';
+        msg.textContent = '❌ Правильный ответ: ' + tasks[i].v;
+        msg.style.color = 'var(--red)';
+      }
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+      setTimeout(function(){ i++; render(); }, 1000);
+    });
+  });
+
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 4: if/else — что напечатает
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g5code');
+  if (!codeEl) return;
+  var inputEl = document.getElementById('g5input');
+  var ansEl = document.getElementById('g5answer');
+  var btn = document.getElementById('g5btn');
+  var msg = document.getElementById('g5msg');
+  var scoreEl = document.getElementById('g5score');
+
+  var tasks = [
+    {
+      code: 'total = 500\nbalance = 1000\nif total > balance:\n    print("Нет средств")\nelse:\n    print("OK")',
+      input: 'Ввод: total = 500, balance = 1000',
+      answer: 'OK'
+    },
+    {
+      code: 'total = 1500\nbalance = 900\nif total > balance:\n    print("Нет средств")\nelse:\n    print("OK")',
+      input: 'Ввод: total = 1500, balance = 900',
+      answer: 'Нет средств'
+    },
+    {
+      code: 'age = 16\nif age >= 18:\n    print("Взрослый")\nelse:\n    print("Ребёнок")',
+      input: 'Ввод: age = 16',
+      answer: 'Ребёнок'
+    },
+    {
+      code: 'taste = "ванильный"\nif taste == "ванильный":\n    print("Чизкейк")\nelse:\n    print("Ореховый торт")',
+      input: 'Ввод: taste = "ванильный"',
+      answer: 'Чизкейк'
+    },
+    {
+      code: 'taste = "шоколадный"\nif taste == "ванильный":\n    print("Чизкейк")\nelse:\n    print("Ореховый торт")',
+      input: 'Ввод: taste = "шоколадный"',
+      answer: 'Ореховый торт'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      inputEl.textContent = '';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    inputEl.textContent = tasks[i].input;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = ansEl.value.trim();
+    var correct = tasks[i].answer;
+    answered++;
+    if (user.toLowerCase() === correct.toLowerCase()){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + correct;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 5;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>
